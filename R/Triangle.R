@@ -17,7 +17,7 @@
 #' B_JB <- Line$new(B, JB, FALSE, FALSE)
 #' C_JC <- Line$new(C, JC, FALSE, FALSE)
 #' opar <- par(mar = c(0,0,0,0))
-#' plot(0, 0, type = "n", asp = 1, xlim = c(0,6), ylim = c(-4,4),
+#' plot(NULL, asp = 1, xlim = c(0,6), ylim = c(-4,4),
 #'      xlab = NA, ylab = NA, axes = FALSE)
 #' draw(t, lwd = 2)
 #' draw(incircle, border = "orange")
@@ -30,6 +30,7 @@
 #'
 #' @export
 #' @importFrom R6 R6Class
+#' @importFrom uniformly runif_in_triangle runif_on_triangle
 Triangle <- R6Class(
 
   "Triangle",
@@ -147,6 +148,7 @@ Triangle <- R6Class(
       private[[".A"]] -> A; private[[".B"]] -> B; private[[".C"]] -> C
       AB <- B-A; AC <- C-A
       z <- (AB[1] - 1i*AB[2]) * (AC[1] + 1i*AC[2])
+      if(z == 0) return(1)
       re <- Re(z); im <- Im(z)
       1 / (1 + im*im/re/re)
     },
@@ -177,7 +179,16 @@ Triangle <- R6Class(
       )
     },
 
-    #' @description Determines whether a point lies inside the reference triangle.
+    #' @description Determine the orientation of the triangle.
+    #' @return An integer: 1 for counterclockwise, -1 for clockwise, 0 for collinear.
+    orientation = function(){
+      private[[".A"]] -> A; private[[".B"]] -> B; private[[".C"]] -> C
+      val <-
+        (B[2L] - A[2L])*(C[1L] - B[1L]) - (B[1L] - A[1L])*(C[2L] - B[2L])
+      ifelse(val == 0, 0L, ifelse(val > 0, -1L, 1L))
+    },
+
+    #' @description Determine whether a point lies inside the reference triangle.
     #' @param M a point
     contains = function(M){
       private[[".A"]] -> A; private[[".B"]] -> B; private[[".C"]] -> C
@@ -326,12 +337,39 @@ Triangle <- R6Class(
       a <- .distance(B,C)
       b <- .distance(A,C)
       c <- .distance(B,A)
-      p <- (a + b + c); s <- p / 2;
+      p <- a + b + c; s <- p / 2
       areaABC <- sqrt(s*(s-a)*(s-b)*(s-c))
       Circle$new(
         center = (A*a + B*b + C*c) / p,
         radius = areaABC / s
       )
+    },
+
+    #' @description Inradius of the reference triangle.
+    inradius = function() {
+      if(self$flatness() == 1){
+        warning("The triangle is flat.")
+        return(0)
+      }
+      private[[".A"]] -> A; private[[".B"]] -> B; private[[".C"]] -> C
+      a <- .distance(B,C)
+      b <- .distance(A,C)
+      c <- .distance(B,A)
+      s <- (a + b + c) / 2
+      sqrt(s*(s-a)*(s-b)*(s-c)) / s
+    },
+
+    #' @description Incenter of the reference triangle.
+    incenter = function() {
+      if(self$flatness() == 1){
+        warning("The triangle is flat.")
+      }
+      private[[".A"]] -> A; private[[".B"]] -> B; private[[".C"]] -> C
+      a <- .distance(B,C)
+      b <- .distance(A,C)
+      c <- .distance(B,A)
+      p <- a + b + c
+      (A*a + B*b + C*c) / p
     },
 
     #' @description Excircles of the triangle.
@@ -355,6 +393,32 @@ Triangle <- R6Class(
       )
     },
 
+    #' @description Excentral triangle of the reference triangle.
+    #' @return A \code{Triangle} object.
+    excentralTriangle = function() {
+      private[[".A"]] -> A; private[[".B"]] -> B; private[[".C"]] -> C
+      a <- .distance(B,C)
+      b <- .distance(A,C)
+      c <- .distance(B,A)
+      JA <- (-a*A + b*B + c*C) / (-a + b + c)
+      JB <- (a*A - b*B + c*C) / (a - b + c)
+      JC <- (a*A + b*B - c*C) / (a + b - c)
+      Triangle$new(JA, JB, JC)
+    },
+
+    #' @description Bevan point. This is the circumcenter of the
+    #' excentral triangle.
+    BevanPoint = function(){
+      self$excentralTriangle()$circumcenter()
+    },
+
+    #' @description Medial triangle. Its vertices are the mid-points of the
+    #' sides of the reference triangle.
+    medialTriangle = function(){
+      private[[".A"]] -> A; private[[".B"]] -> B; private[[".C"]] -> C
+      Triangle$new((B+C)/2, (A+C)/2, (A+B)/2)
+    },
+
     #' @description Orthic triangle. Its vertices are the feet of the altitudes
     #' of the reference triangle.
     orthicTriangle = function() {
@@ -368,9 +432,12 @@ Triangle <- R6Class(
       x <- 1 / (.dot(AC,AB) / b / c)
       y <- 1 / (.dot(BC,BA) / a / c)
       z <- 1 / (.dot(CA,CB) / a / b)
-      HA <- (b*y*B + c*z*C) / (b*y + c*z)
-      HB <- (a*x*A + c*z*C) / (a*x + c*z)
-      HC <- (a*x*A + b*y*B) / (a*x + b*y)
+      # HA <- (b*y*B + c*z*C) / (b*y + c*z)
+      # HB <- (a*x*A + c*z*C) / (a*x + c*z)
+      # HC <- (a*x*A + b*y*B) / (a*x + b*y)
+      HA <- (b/z*B + c/y*C) / (b/z + c/y)
+      HB <- (a/z*A + c/x*C) / (a/z + c/x)
+      HC <- (a/y*A + b/x*B) / (a/y + b/x)
       Triangle$new(HA, HB, HC)
     },
 
@@ -506,17 +573,60 @@ Triangle <- R6Class(
 
     #' @description Tangential triangle of the reference triangle.
     #' This is the triangle formed by the lines tangent to the circumcircle of
-    #' the reference triangle at its vertices.
+    #' the reference triangle at its vertices. It does not exist for a
+    #' right triangle.
     #' @return A \code{Triangle} object.
     tangentialTriangle = function() {
       private[[".A"]] -> A; private[[".B"]] -> B; private[[".C"]] -> C
       a2 <- c(crossprod(B-C))
       b2 <- c(crossprod(A-C))
       c2 <- c(crossprod(B-A))
+      i <- match(max(a2,b2,c2), c(a2,b2,c2))
+      if(sum(c(a2,b2,c2)[-i]) == c(a2,b2,c2)[i]){
+        stop("The triangle is right, no tangential triangle.")
+      }
       TA <- (-a2*A + b2*B + c2*C) / (-a2 + b2 + c2)
       TB <- (a2*A - b2*B + c2*C) / (a2 - b2 + c2)
       TC <- (a2*A + b2*B - c2*C) / (a2 + b2 - c2)
       Triangle$new(TA, TB, TC)
+    },
+
+    #' @description Symmedial triangle of the reference triangle.
+    #' @return A \code{Triangle} object.
+    #' @examples t <- Triangle$new(c(0,-2), c(0.5,1), c(3,0.6))
+    #' symt <- t$symmedialTriangle()
+    #' symmedianA <- Line$new(t$A, symt$A, FALSE, FALSE)
+    #' symmedianB <- Line$new(t$B, symt$B, FALSE, FALSE)
+    #' symmedianC <- Line$new(t$C, symt$C, FALSE, FALSE)
+    #' K <- t$symmedianPoint()
+    #' opar <- par(mar = c(0,0,0,0))
+    #' plot(NULL, asp = 1, xlim = c(-1,5), ylim = c(-3,3),
+    #'      xlab = NA, ylab = NA, axes = FALSE)
+    #' draw(t, lwd = 2)
+    #' draw(symmedianA, lwd = 2, col = "blue")
+    #' draw(symmedianB, lwd = 2, col = "blue")
+    #' draw(symmedianC, lwd = 2, col = "blue")
+    #' points(rbind(K), pch = 19, col = "red")
+    #' par(opar)
+    symmedialTriangle = function() {
+      private[[".A"]] -> A; private[[".B"]] -> B; private[[".C"]] -> C
+      a2 <- c(crossprod(B-C))
+      b2 <- c(crossprod(A-C))
+      c2 <- c(crossprod(B-A))
+      KA <- (b2*B + c2*C) / (b2 + c2)
+      KB <- (a2*A + c2*C) / (a2 + c2)
+      KC <- (a2*A + b2*B) / (a2 + b2)
+      Triangle$new(KA, KB, KC)
+    },
+
+    #' @description Symmedian point of the reference triangle.
+    #' @return A point.
+    symmedianPoint = function() {
+      private[[".A"]] -> A; private[[".B"]] -> B; private[[".C"]] -> C
+      a2 <- c(crossprod(B-C))
+      b2 <- c(crossprod(A-C))
+      c2 <- c(crossprod(B-A))
+      (a2*A + b2*B + c2*C) / (a2 + b2 + c2)
     },
 
     #' @description Circumcircle of the reference triangle.
@@ -532,7 +642,183 @@ Triangle <- R6Class(
       Dx <- det(cbind(q, ABC[,2L], 1))
       Dy <- -det(cbind(q, ABC[,1L], 1))
       center <- c(Dx,Dy) / det(cbind(ABC, 1)) / 2
-      Circle$new(center = center, radius = sqrt(c(crossprod(center-A))))
+      Circle$new(center = center, radius = .distance(center,A))
+    },
+
+    #' @description Circumcenter of the reference triangle.
+    circumcenter = function() {
+      private[[".A"]] -> A; private[[".B"]] -> B; private[[".C"]] -> C
+      a <- .distance(B,C)
+      b <- .distance(A,C)
+      c <- .distance(B,A)
+      AC <- C-A; AB <- B-A
+      BC <- C-B; BA <- A-B
+      CA <- A-C; CB <- B-C
+      cosA <- .dot(AC,AB) / b / c
+      cosB <- .dot(BC,BA) / a / c
+      cosC <- .dot(CA,CB) / a / b
+      (a*cosA*A + b*cosB*B + c*cosC*C) / (a*cosA + b*cosB + c*cosC)
+    },
+
+    #' @description Circumradius of the reference triangle.
+    circumradius = function(){
+      private[[".A"]] -> A; private[[".B"]] -> B; private[[".C"]] -> C
+      a <- .distance(B,C)
+      b <- .distance(A,C)
+      c <- .distance(B,A)
+      a*b*c / sqrt((a+b+c)*(b+c-a)*(c+a-b)*(a+b-c))
+    },
+
+    #' @description The Brocard circle of the reference triangle (also known
+    #' as the seven-point circle).
+    #' @return A \code{Circle} object.
+    BrocardCircle = function() {
+      O <- self$circumcenter()
+      K <- self$symmedianPoint()
+      CircleAB(O, K)
+    },
+
+    #' @description Brocard points of the reference triangle.
+    #' @return A list of two points, the first Brocard point and the second
+    #' Brocard point.
+    BrocardPoints = function(){
+      if(self$flatness() == 1){
+        warning("The triangle is flat.")
+        return(NULL)
+      }
+      private[[".A"]] -> A; private[[".B"]] -> B; private[[".C"]] -> C
+      a <- .distance(B,C)
+      b <- .distance(A,C)
+      c <- .distance(B,A)
+      Omega <- self$trilinearToPoint(c/b, a/c, b/a)
+      OmegaPrime <- self$trilinearToPoint(b/c, c/a, a/b)
+      if(self$orientation() == 1L){
+        list(Z1 = Omega, Z2 = OmegaPrime)
+      }else{
+        list(Z1 = OmegaPrime, Z2 = Omega)
+      }
+    },
+
+    #' @description The first Lemoine circle of the reference triangle.
+    #' @return A \code{Circle} object.
+    LemoineCircleI = function() {
+      private[[".A"]] -> A; private[[".B"]] -> B; private[[".C"]] -> C
+      a2 <- c(crossprod(B-C))
+      b2 <- c(crossprod(A-C))
+      c2 <- c(crossprod(B-A))
+      a <- sqrt(a2)
+      b <- sqrt(b2)
+      c <- sqrt(c2)
+      R <- a*b*c*sqrt(a2*b2 + b2*c2 + c2*a2) / (a2 + b2 + c2) /
+        sqrt((-a+b+c)*(a-b+c)*(a+b-c)*(a+b+c))
+      O <- self$circumcenter()
+      K <- self$symmedianPoint()
+      Circle$new((O+K)/2, R)
+    },
+
+    #' @description The second Lemoine circle of the reference triangle (also
+    #' known as the cosine circle)
+    #' @return A \code{Circle} object.
+    LemoineCircleII = function() {
+      private[[".A"]] -> A; private[[".B"]] -> B; private[[".C"]] -> C
+      a2 <- c(crossprod(B-C))
+      b2 <- c(crossprod(A-C))
+      c2 <- c(crossprod(B-A))
+      R <- sqrt(a2*b2*c2) / (a2 + b2 + c2)
+      K <- self$symmedianPoint()
+      Circle$new(K, R)
+    },
+
+    #' @description The Lemoine triangle of the reference triangle.
+    #' @return A \code{Triangle} object.
+    LemoineTriangle = function() {
+      private[[".A"]] -> A; private[[".B"]] -> B; private[[".C"]] -> C
+      a2 <- c(crossprod(B-C))
+      b2 <- c(crossprod(A-C))
+      c2 <- c(crossprod(B-A))
+      abc <- sqrt(a2*b2*c2)
+      # t1 <- sqrt(b2*c2) / (a2-2*b2-2*c2)
+      # t2 <- sqrt(a2*c2) / (-2*a2+b2-2*c2)
+      # t3 <- sqrt(a2*b2) / (-2*a2-2*b2+c2)
+      t1 <- abc / (a2-2*b2-2*c2)
+      t2 <- abc / (-2*a2+b2-2*c2)
+      t3 <- abc / (-2*a2-2*b2+c2)
+      P1 <- (t2*B + t3*C) / (t2+t3)
+      P2 <- (t1*A + t3*C) / (t1+t3)
+      P3 <- (t1*A + t2*B) / (t1+t2)
+      Triangle$new(P1, P2, P3)
+    },
+
+    #' @description The third Lemoine circle of the reference triangle.
+    #' @return A \code{Circle} object.
+    LemoineCircleIII = function() {
+      self$LemoineTriangle()$circumcircle()
+    },
+
+    #' @description Parry circle of the reference triangle.
+    #' @return A \code{Circle} object.
+    ParryCircle = function() {
+      private[[".A"]] -> A; private[[".B"]] -> B; private[[".C"]] -> C
+      a2 <- c(crossprod(B-C))
+      b2 <- c(crossprod(A-C))
+      c2 <- c(crossprod(B-A))
+      t1 <- a2*(b2-c2)*(b2+c2-2*a2)
+      t2 <- b2*(c2-a2)*(c2+a2-2*b2)
+      t3 <- c2*(a2-b2)*(a2+b2-2*c2)
+      O <- (t1*A+t2*B+t3*C) / (t1+t2+t3)
+      R <- sqrt(a2*b2*c2)*((a2*a2+b2*b2+c2*c2) - (a2*b2+b2*c2+a2*c2)) / 3 /
+        abs((a2-b2)*(b2-c2)*(c2-a2)) # quid si isocele ?
+      Circle$new(O, R)
+    },
+
+    #' @description Pedal triangle of a point with respect to the reference
+    #' triangle. The pedal triangle of a point \code{P} is the triangle whose
+    #' vertices are the feet of the perpendiculars from \code{P} to the sides
+    #' of the reference triangle.
+    #' @param P a point
+    #' @return A \code{Triangle} object.
+    pedalTriangle = function(P){
+      # P <- as.vector(P)
+      # stopifnot(
+      #   is.numeric(P),
+      #   length(P) == 2L,
+      #   !any(is.na(P)),
+      #   all(is.finite(P))
+      # )
+      private[[".A"]] -> A; private[[".B"]] -> B; private[[".C"]] -> C
+      a <- .distance(B,C)
+      b <- .distance(A,C)
+      c <- .distance(B,A)
+      AC <- C-A; AB <- B-A
+      BC <- C-B; BA <- A-B
+      CA <- A-C; CB <- B-C
+      cosA <- .dot(AC,AB) / b / c
+      cosB <- .dot(BC,BA) / a / c
+      cosC <- .dot(CA,CB) / a / b
+      Ptc <- self$pointToTrilinear(P)
+      Q1 <- (b*(Ptc[2L] + Ptc[1L]*cosC)*B + c*(Ptc[3L] + Ptc[1L]*cosB)*C) /
+        (b*(Ptc[2L] + Ptc[1L]*cosC) + c*(Ptc[3L] + Ptc[1L]*cosB))
+      Q2 <- (a*(Ptc[1L] + Ptc[2L]*cosC)*A + c*(Ptc[3L] + Ptc[2L]*cosA)*C) /
+        (a*(Ptc[1L] + Ptc[2L]*cosC) + c*(Ptc[3L] + Ptc[2L]*cosA))
+      Q3 <- (a*(Ptc[1L] + Ptc[3L]*cosB)*A + b*(Ptc[2L] + Ptc[3L]*cosA)*B) /
+        (a*(Ptc[1L] + Ptc[3L]*cosB) + b*(Ptc[2L] + Ptc[3L]*cosA))
+      Triangle$new(Q1, Q2, Q3)
+    },
+
+    #' @description Cevian triangle of a point with respect to the reference
+    #' triangle.
+    #' @param P a point
+    #' @return A \code{Triangle} object.
+    CevianTriangle = function(P){
+      private[[".A"]] -> A; private[[".B"]] -> B; private[[".C"]] -> C
+      a <- .distance(B,C)
+      b <- .distance(A,C)
+      c <- .distance(B,A)
+      Ptc <- self$pointToTrilinear(P)
+      Q1 <- (b*Ptc[2L]*B + c*Ptc[3L]*C) / (b*Ptc[2L] + c*Ptc[3L])
+      Q2 <- (a*Ptc[1L]*A + c*Ptc[3L]*C) / (a*Ptc[1L] + c*Ptc[3L])
+      Q3 <- (a*Ptc[1L]*A + b*Ptc[2L]*B) / (a*Ptc[1L] + b*Ptc[2L])
+      Triangle$new(Q1, Q2, Q3)
     },
 
     #' @description Malfatti circles of the triangle.
@@ -541,7 +827,7 @@ Triangle <- R6Class(
     #' @return A list with the three Malfatti circles, \code{Circle} objects.
     #' @examples t <- Triangle$new(c(0,0), c(2,0.5), c(1.5,2))
     #' Mcircles <- t$MalfattiCircles(TRUE)
-    #' plot(0, 0, type="n", asp = 1, xlim = c(0,2.5), ylim = c(0,2.5),
+    #' plot(NULL, asp = 1, xlim = c(0,2.5), ylim = c(0,2.5),
     #'      xlab = NA, ylab = NA)
     #' grid()
     #' draw(t, col = "blue", lwd = 2)
@@ -660,6 +946,30 @@ Triangle <- R6Class(
       (a*x*A + b*y*B + c*z*C) / den
     },
 
+    #' @description Give the trilinear coordinates of a point with respect to
+    #' the reference triangle.
+    #' @param P a point
+    #' @return The trilinear coordinates, a numeric vector of length 3.
+    pointToTrilinear = function(P){
+      P <- as.vector(P)
+      stopifnot(
+        is.numeric(P),
+        length(P) == 2L,
+        !any(is.na(P)),
+        all(is.finite(P))
+      )
+      private[[".A"]] -> A; private[[".B"]] -> B; private[[".C"]] -> C
+      a <- .distance(B,C)
+      b <- .distance(A,C)
+      c <- .distance(B,A)
+      Mat <- solve(rbind(cbind(A-C,B-C,C),c(0,0,1)))
+      k1k2 <- Mat %*% c(P,1)
+      k1 <- k1k2[1L]
+      k2 <- k1k2[2L]
+      k3 <- 1-k1-k2
+      c(x = k1/a, y = k2/b, z = k3/c)
+    },
+
     #' @description Rotate the triangle.
     #' @param alpha angle of rotation
     #' @param O center of rotation
@@ -707,6 +1017,50 @@ Triangle <- R6Class(
       Triangle$new(A + v, B + v, C + v)
     },
 
+    #' @description The Steiner ellipse (or circumellipse) of the reference
+    #' triangle. This is the ellipse passing through the three vertices of
+    #' the triangle and centered at the centroid of the triangle.
+    #' @return An \code{Ellipse} object.
+    #' @examples t <- Triangle$new(c(0,0), c(2,0.5), c(1.5,2))
+    #' ell <- t$SteinerEllipse()
+    #' plot(NULL, asp = 1, xlim = c(0,2.5), ylim = c(-0.7,2.4),
+    #'      xlab = NA, ylab = NA)
+    #' draw(t, col = "blue", lwd = 2)
+    #' draw(ell, border = "red", lwd =2)
+    SteinerEllipse = function(){
+      if(self$flatness() == 1){
+        warning("The triangle is flat.")
+        return(NULL)
+      }
+      private[[".A"]] -> A; private[[".B"]] -> B; private[[".C"]] -> C
+      P <- c(0,0); Q <- c(10,0); R <- c(5, 5*sqrt(3))
+      circ <- Triangle$new(P, Q, R)$circumcircle()
+      f <- AffineMappingThreePoints(P, Q, R, A, B, C)
+      f$transformEllipse(circ)
+    },
+
+    #' @description The Steiner inellipse (or midpoint ellipse) of the reference
+    #' triangle. This is the ellipse tangent to the sides of the triangle at
+    #' their midpoints, and centered at the centroid of the triangle.
+    #' @return An \code{Ellipse} object.
+    #' @examples t <- Triangle$new(c(0,0), c(2,0.5), c(1.5,2))
+    #' ell <- t$SteinerInellipse()
+    #' plot(NULL, asp = 1, xlim = c(0,2.5), ylim = c(-0.1,2.4),
+    #'      xlab = NA, ylab = NA)
+    #' draw(t, col = "blue", lwd = 2)
+    #' draw(ell, border = "red", lwd =2)
+    SteinerInellipse = function(){
+      if(self$flatness() == 1){
+        warning("The triangle is flat.")
+        return(NULL)
+      }
+      private[[".A"]] -> A; private[[".B"]] -> B; private[[".C"]] -> C
+      P <- c(0,0); Q <- c(10,0); R <- c(5, 5*sqrt(3))
+      circ <- Triangle$new(P, Q, R)$incircle()
+      f <- AffineMappingThreePoints(P, Q, R, A, B, C)
+      f$transformEllipse(circ)
+    },
+
     #' @description Random points on or in the reference triangle.
     #' @param n an integer, the desired number of points
     #' @param where \code{"in"} to generate inside the triangle,
@@ -715,10 +1069,10 @@ Triangle <- R6Class(
     randomPoints = function(n, where = "in"){
       where <- match.arg(where, c("in", "on"))
       if(where == "in"){
-        uniformly::runif_in_triangle(n, private[[".A"]], private[[".B"]],
+        runif_in_triangle(n, private[[".A"]], private[[".B"]],
                                      private[[".C"]])
       }else{
-        uniformly::runif_on_triangle(n, private[[".A"]], private[[".B"]],
+        runif_on_triangle(n, private[[".A"]], private[[".B"]],
                                      private[[".C"]])
       }
     }

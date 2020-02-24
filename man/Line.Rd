@@ -59,7 +59,9 @@ l$includes(M, strict = TRUE)
 \item \href{#method-isParallel}{\code{Line$isParallel()}}
 \item \href{#method-includes}{\code{Line$includes()}}
 \item \href{#method-perpendicular}{\code{Line$perpendicular()}}
+\item \href{#method-parallel}{\code{Line$parallel()}}
 \item \href{#method-projection}{\code{Line$projection()}}
+\item \href{#method-distance}{\code{Line$distance()}}
 \item \href{#method-reflection}{\code{Line$reflection()}}
 \item \href{#method-rotate}{\code{Line$rotate()}}
 \item \href{#method-translate}{\code{Line$translate()}}
@@ -242,6 +244,25 @@ meeting point and the point \code{M}.
 }
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-parallel"></a>}}
+\subsection{Method \code{parallel()}}{
+Parallel to the reference line passing through a given point.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Line$parallel(M)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{M}}{a point}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A \code{Line} object.
+}
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-projection"></a>}}
 \subsection{Method \code{projection()}}{
 Orthogonal projection of a point to the reference line.
@@ -258,6 +279,25 @@ Orthogonal projection of a point to the reference line.
 }
 \subsection{Returns}{
 A point.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-distance"></a>}}
+\subsection{Method \code{distance()}}{
+Distance from a point to the reference line.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Line$distance(M)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{M}}{a point}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A positive number.
 }
 }
 \if{html}{\out{<hr>}}

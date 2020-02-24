@@ -28,7 +28,7 @@ lineFCprime$includes(ExeterPoint)
 
 ## ----Exeter, fig.width=5, fig.height=5----------------------------------------
 opar <- par(mar = c(0,0,0,0))
-plot(0, 0, type = "n", asp = 1, xlim = c(-2,9), ylim = c(-6,7),
+plot(NULL, asp = 1, xlim = c(-2,9), ylim = c(-6,7),
      xlab = NA, ylab = NA, axes = FALSE)
 draw(t, lwd = 2, col = "black")
 draw(circumcircle, lwd = 2, border = "cyan")
@@ -49,7 +49,7 @@ iota1 <- inversionSwappingTwoCircles(C1, C3, positive = TRUE)
 # inversion swapping C2 and C3 with positive power
 iota2 <- inversionSwappingTwoCircles(C2, C3, positive = TRUE)
 # take an arbitrary point on C3
-M <- C3$center + c(C3$radius,0)
+M <- C3$pointFromAngle(0)
 # invert it with iota1 and iota2
 M1 <- iota1$invert(M); M2 <- iota2$invert(M)
 # take the circle C passing through M, M1, M2
@@ -62,7 +62,7 @@ L <- C$radicalAxis(C3)
 H <- intersectionLineLine(L, cl)
 # take the circle Cp with diameter [HO3]
 O3 <- C3$center
-Cp <- Circle$new((H+O3)/2, sqrt(c(crossprod(H-O3)))/2)
+Cp <- CircleAB(H, O3)
 # get the two intersection points T0 and T1 of C3 with Cp
 T0_and_T1 <- intersectionCircleCircle(C3, Cp)
 T0 <- T0_and_T1[[1L]]; T1 <- T0_and_T1[[2L]]
@@ -77,7 +77,7 @@ Csolution1 <- Triangle$new(T1, T1p, T1pp)$circumcircle()
 
 ## ----tangentCircles, fig.width=5, fig.height=5--------------------------------
 opar <- par(mar = c(0,0,0,0))
-plot(0, 0, type = "n", asp = 1, xlim = c(-4,9), ylim = c(-4,9),
+plot(NULL, asp = 1, xlim = c(-4,9), ylim = c(-4,9),
      xlab = NA, ylab = NA, axes = FALSE)
 draw(C1, col = "yellow", border = "red")
 draw(C2, col = "yellow", border = "red")
@@ -86,12 +86,41 @@ draw(Csolution0, lwd = 2, border = "blue")
 draw(Csolution1, lwd = 2, border = "blue")
 par(opar)
 
+## -----------------------------------------------------------------------------
+# reference triangle
+t <- Triangle$new(c(0,0), c(5,3), c(3,-1))
+# nine-point circle
+npc <- t$orthicTriangle()$circumcircle()
+# excircles
+excircles <- t$excircles()
+# inversion with respect to the circle orthogonal to the excircles
+iota <- inversionFixingThreeCircles(excircles$A, excircles$B, excircles$C)
+# Apollonius circle
+ApolloniusCircle <- iota$invertCircle(npc)
+
+## ----apollonius, fig.width=5, fig.height=5------------------------------------
+opar <- par(mar = c(0,0,0,0))
+plot(NULL, asp = 1, xlim = c(-10,14), ylim = c(-5, 18),
+     xlab = NA, ylab = NA, axes = FALSE)
+draw(t, lwd = 2)
+draw(excircles$A, lwd = 2, border = "blue")
+draw(excircles$B, lwd = 2, border = "blue")
+draw(excircles$C, lwd = 2, border = "blue")
+draw(ApolloniusCircle, lwd = 2, border = "red")
+par(opar)
+
+## -----------------------------------------------------------------------------
+inradius <- t$inradius()
+semiperimeter <- sum(t$edges()) / 2
+(inradius^2 + semiperimeter^2) / (4*inradius)
+ApolloniusCircle$radius
+
 ## ----lappingArea, fig.width=5, fig.height=5-----------------------------------
 O1 <- c(2,5); circ1 <- Circle$new(O1, 2)
 O2 <- c(4,4); circ2 <- Circle$new(O2, 3)
 
 opar <- par(mar = c(0,0,0,0))
-plot(0, 0, type = "n", asp = 1, xlim = c(0,8), ylim = c(0,8))
+plot(NULL, asp = 1, xlim = c(0,8), ylim = c(0,8), xlab = NA, ylab = NA)
 draw(circ1, border = "purple", lwd = 2)
 draw(circ2, border = "forestgreen", lwd = 2)
 
@@ -166,13 +195,14 @@ tessellation <- function(depth, Thetas0, colors){
   
   # plot ####
   opar <- par(mar = c(0,0,0,0), bg = "black")
-  plot(0, 0, type = "n", asp = 1, xlim = c(-4,4), ylim = c(-4,4))
+  plot(NULL, asp = 1, xlim = c(-4,4), ylim = c(-4,4), 
+       xlab = NA, ylab = NA, axes = FALSE)
   draw(circ, border = "white")
   invisible(lapply(arcs, draw, col = colors[1L], lwd = 2))
   
   Thetas <- lapply(
     rapply(Ms, function(M){
-      Arg(M[1] + 1i*M[2])
+      Arg(M[1L] + 1i*M[2L])
     }, how="replace"),
     unlist)
   
@@ -253,7 +283,8 @@ tessellation2 <- function(depth, Thetas0, colors){
   
   # plot ####
   opar <- par(mar = c(0,0,0,0), bg = "black")
-  plot(0, 0, type = "n", asp = 1, xlim = c(-4,4), ylim = c(-4,4))
+  plot(NULL, asp = 1, xlim = c(-4,4), ylim = c(-4,4), 
+       xlab = NA, ylab = NA, axes = FALSE)
 
   path <- do.call(rbind, lapply(rev(arcs), function(arc) arc$path()))
   polypath(path, col = colors[1L])
@@ -270,7 +301,7 @@ tessellation2 <- function(depth, Thetas0, colors){
   
   Thetas <- lapply(
     rapply(Ms, function(M){
-      Arg(M[1] + 1i*M[2])
+      Arg(M[1L] + 1i*M[2L])
     }, how="replace"),
     unlist)
   
@@ -317,10 +348,8 @@ side3 <- minorAxis$translate(v1)
 side4 <- minorAxis$translate(-v1)
 # take a vertex of the bounding box
 A <- side1$A
-# radius of the director circle
-R <- sqrt(c(crossprod(A - ell$center)))
 # director circle
-circ <- Circle$new(ell$center, R)
+circ <- CircleOA(ell$center, A)
 
 ## ---- message=FALSE-----------------------------------------------------------
 T1 <- ell$tangent(0.3)
@@ -331,7 +360,7 @@ T2 <- T1$perpendicular(I)
 
 ## ----directorCircle, fig.width=5, fig.height=5--------------------------------
 opar <- par(mar=c(0,0,0,0))
-plot(NULL, type = "n", asp = 1, 
+plot(NULL, asp = 1, 
      xlim = c(-3,6), ylim = c(-5,7), xlab = NA, ylab = NA)
 # draw the ellipse
 draw(ell, col = "blue")
@@ -359,7 +388,7 @@ ellipses <- lapply(circles, f$transformEllipse)
 
 ## ----ellipticalSteiner, fig.width=6, fig.height=4-----------------------------
 opar <- par(mar = c(0,0,0,0))
-plot(NULL, type = "n", asp = 1, xlim = c(-8,6), ylim = c(-4,4), 
+plot(NULL, asp = 1, xlim = c(-8,6), ylim = c(-4,4), 
      xlab = NA, ylab = NA, axes = FALSE)
 # draw the Steiner chain
 invisible(lapply(circles, draw, lwd = 2, col = "blue"))
@@ -380,7 +409,7 @@ par(opar)
 #    circles <- SteinerChain(c0, 3, -0.2, shift)
 #    ellipses <- lapply(circles, f$transformEllipse)
 #    opar <- par(mar = c(0,0,0,0))
-#    plot(0, 0, type = "n", asp = 1, xlim = c(-8,0), ylim = c(-4,4),
+#    plot(NULL, asp = 1, xlim = c(-8,0), ylim = c(-4,4),
 #         xlab = NA, ylab = NA, axes = FALSE)
 #    invisible(lapply(ellipses, draw, lwd = 2, col = "blue", border = "black"))
 #    draw(ell, lwd = 2)
@@ -388,7 +417,7 @@ par(opar)
 #    invisible()
 #  }
 #  
-#  shift_ <- seq(0, 3, length.out = 100)[-1]
+#  shift_ <- seq(0, 3, length.out = 100)[-1L]
 #  
 #  save_gif(
 #    for(shift in shift_){
@@ -408,7 +437,7 @@ chains <- lapply(circles[1:3], function(c0){
 
 ## ----nestedSteiner, fig.width=5, fig.height=5---------------------------------
 opar <- par(mar = c(0,0,0,0))
-plot(NULL, type = "n", asp = 1, xlim = c(0,6), ylim = c(-4,4), 
+plot(NULL, asp = 1, xlim = c(0,6), ylim = c(-4,4), 
      xlab = NA, ylab = NA, axes = FALSE)
 # draw the big Steiner chain
 invisible(lapply(circles, draw, lwd = 2, border = "blue"))

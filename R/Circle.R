@@ -5,6 +5,7 @@
 #'
 #' @export
 #' @importFrom R6 R6Class
+#' @importFrom uniformly runif_in_sphere runif_on_sphere
 Circle <- R6Class(
 
   "Circle",
@@ -139,12 +140,68 @@ Circle <- R6Class(
       Line$new(T, T + c(-sint,cost))
     },
 
+    #' @description Return the two tangents of the reference circle passing
+    #' through an external point.
+    #' @param P a point external to the reference circle
+    #' @return A list of two \code{Line} objects, the two tangents; the
+    #' tangency points are in the \code{B} field of the lines.
+    tangentsThroughExternalPoint = function(P){
+      P <- as.vector(P)
+      stopifnot(
+        is.numeric(P),
+        length(P) == 2L,
+        all(is.finite(P)),
+        !any(is.na(P))
+      )
+      O <- private[[".center"]]
+      if(.distance(O,P) <= private[[".radius"]]){
+        stop("`P` is not external to the circle.")
+      }
+      M <- (O+P)/2
+      circ <- Circle$new(M, .distance(O, M))
+      Is <- intersectionCircleCircle(self, circ)
+      list(T1 = Line$new(P, Is[[1L]]), T2 = Line$new(P, Is[[2L]]))
+    },
+
     #' @description Check whether the reference circle equals another circle.
     #' @param circ a \code{Circle} object
     isEqual = function(circ){
       c0 <- private[[".center"]]; r0 <- private[[".radius"]]
       c1 <- circ$center; r1 <- circ$radius
       isTRUE(all.equal(c(c0[1L],c0[2L],r0), c(c1[1L],c1[2L],r1)))
+    },
+
+    #' @description Check whether the reference circle is orthogonal to a
+    #' given circle
+    #' @param circ a \code{Circle} object
+    isOrthogonal = function(circ){
+      stopifnot(is(circ, "Circle"))
+      d2 <- c(crossprod(private[[".center"]]-circ$center))
+      R <- private[[".radius"]]
+      isTRUE(all.equal(d2, R*R + circ$radius*circ$radius))
+    },
+
+    #' @description Angle between the reference circle and a given circle,
+    #' if they intersect.
+    #' @param circ a \code{Circle} object
+    angle = function(circ){
+      stopifnot(is(circ, "Circle"))
+      center1 <- private[[".center"]]
+      center2 <- circ$center
+      r1 <- private[[".radius"]]
+      r2 <- circ$radius
+      d2 <- c(crossprod(center1 - center2))
+      epsilon <- sqrt(.Machine$double.eps)
+      if(d2 > (r1+r2)^2 + epsilon || d2 < (r1-r2)^2 - epsilon){
+        message("The two circles do not intersect.")
+        return(NULL)
+      }
+      b1 <- 1/r1; b2 <- 1/r2
+      a1 <- b1*center1; a2 <- b2*center2
+      bprime1 <- r1 * (c(crossprod(a1))-1)
+      bprime2 <- r2 * (c(crossprod(a2))-1)
+      cosTheta <- b1*bprime2/2 + b2*bprime1/2 - .dot(a1,a2)
+      acos(cosTheta)
     },
 
     #' @description Check whether a point belongs to the reference circle.
@@ -350,10 +407,10 @@ Circle <- R6Class(
     randomPoints = function(n, where = "in"){
       where <- match.arg(where, c("in", "on"))
       if(where == "in"){
-        sims <- uniformly::runif_in_sphere(n, 2, private[[".radius"]])
+        sims <- runif_in_sphere(n, 2, private[[".radius"]])
         sweep(sims, 2L, private[[".center"]], "+")
       }else{
-        sims <- uniformly::runif_on_sphere(n, 2, private[[".radius"]])
+        sims <- runif_on_sphere(n, 2, private[[".radius"]])
         sweep(sims, 2L, private[[".center"]], "+")
       }
     }
@@ -373,6 +430,92 @@ radicalCenter <- function(circ1, circ2, circ3){
   .LineLineIntersection(l1$A, l1$B, l2$A, l2$B)
 }
 
+#' Mid-circle(s)
+#' @description Return the mid-circle(s) of two circles.
+#'
+#' @param circ1,circ2 \code{Circle} objects
+#'
+#' @return A \code{Circle} object, or a \code{Line} object, or a list of two
+#' such objects.
+#' @export
+#'
+#' @details A mid-circle of two circles is a generalized circle (i.e. a circle
+#' or a line) such that the inversion on this circle swaps the two circles.
+#' The case of a line appears only when the two circles have equal radii.
+#'
+#' @seealso \code{\link{inversionSwappingTwoCircles}}
+#'
+#' @examples circ1 <- Circle$new(c(5,4),2)
+#' circ2 <- Circle$new(c(6,4),1)
+#' midcircle <- midCircles(circ1, circ2)
+#' inversionFromCircle(midcircle)
+#' inversionSwappingTwoCircles(circ1, circ2)
+midCircles <- function(circ1, circ2){
+  stopifnot(
+    is(circ1, "Circle"),
+    is(circ2, "Circle")
+  )
+
+  r1 <- circ1$radius; r2 <- circ2$radius
+  O1 <- circ1$center; O2 <- circ2$center
+
+  epsilon <- sqrt(.Machine$double.eps)
+
+  if(r1 == r2){
+    if(isTRUE(all.equal(O1,O2))){ # O1=O2
+      out <- list(
+        C1 = circ1,
+        C2 = "circles are equal; every diameter is a mid-circle"
+      )
+    }else{
+      d2 <- c(crossprod(O1 - O2))
+      sumRadii2 <- (r1+r2)^2
+      I <- (O1 + O2) / 2
+      O1_O2 <- O2 - O1
+      v <- c(O1_O2[2L], -O1_O2[1L])
+      line <- Line$new(I+v, I-v)
+      if(d2 < sumRadii2){ # they intersect at two points
+        out <- list(
+          C1 = Circle$new(I, sqrt(abs(c(crossprod(I-O2)) - r2*r2))),
+          C2 = line
+        )
+      }else{ # they are tangent or they do not intersect
+        out <- line
+      }
+    }
+  }else{ # r1 != r2
+    d2 <- c(crossprod(O1 - O2))
+    sumRadii2 <- (r1+r2)^2
+    rho <- r1/r2
+    if(d2 > sumRadii2 + epsilon){ # they are outside each other
+      I <- O1 - rho/(1-rho)*(O2-O1)
+      k <- rho * abs(c(crossprod(I-O2))-r2*r2)
+      out <- Circle$new(I, sqrt(k))
+    }else if(d2 < (r1-r2)^2 - epsilon){ # one contains the other
+      I <- O1 + rho/(1+rho)*(O2-O1)
+      k <- rho * abs(c(crossprod(I-O2))-r2*r2)
+      out <- Circle$new(I, sqrt(k))
+    }else if(sumRadii2 - d2 < epsilon){ # they are externally tangent
+      I <- O1 - rho/(1-rho)*(O2-O1)
+      k <- rho * abs(c(crossprod(I-O2))-r2*r2)
+      out <- Circle$new(I, sqrt(k))
+    }else if(d2 - (r1-r2)^2 < epsilon){ # they are internally tangent
+      I <- O1 + rho/(1+rho)*(O2-O1)
+      k <- rho * abs(c(crossprod(I-O2))-r2*r2)
+      out <- Circle$new(I, sqrt(k))
+    }else{ # they intersect at two points
+      I1 <- O1 - rho/(1-rho)*(O2-O1)
+      k1 <- rho * abs(c(crossprod(I1-O2))-r2*r2)
+      I2 <- O1 + rho/(1+rho)*(O2-O1)
+      k2 <- rho * abs(c(crossprod(I2-O2))-r2*r2)
+      out <- list(
+        C1 = Circle$new(I1, sqrt(k1)),
+        C2 = Circle$new(I2, sqrt(k2))
+      )
+    }
+  }
+  out
+}
 
 #' Steiner chain
 #' @description Return a Steiner chain of circles.
@@ -445,6 +588,17 @@ SteinerChain <- function(c0, n, phi, shift, ellipse = FALSE){
 #' @export
 CircleOA <- function(O, A){
   Circle$new(O, .distance(O,A))
+}
+
+#' Circle given by a diameter
+#' @description Return the circle given by a diameter
+#'
+#' @param A,B the endpoints of the diameter
+#'
+#' @return A \code{Circle} object.
+#' @export
+CircleAB <- function(A, B){
+  Circle$new((A+B)/2, .distance(A,B)/2)
 }
 
 #' Unit circle

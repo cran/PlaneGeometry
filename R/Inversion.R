@@ -146,7 +146,7 @@ Inversion <- R6Class(
       c1 <- circ$center
       r1 <- circ$radius
       D1 <- (c1[1L] - c0[1L])^2 + (c1[2L] - c0[2L])^2 - r1*r1
-      if(D1 != 0){
+      if(abs(D1) > sqrt(.Machine$double.eps)){
         s <- k / D1
         Circle$new(c0 + s*(c1-c0), abs(s)*r1);
       }else{
@@ -202,6 +202,17 @@ Inversion <- R6Class(
   )
 )
 
+#' Inversion on a circle
+#' @description Return the inversion on a given circle.
+#'
+#' @param circ a \code{Circle} object
+#'
+#' @return An \code{Inversion} object
+#' @export
+inversionFromCircle <- function(circ){
+  stopifnot(is(circ, "Circle"))
+  Inversion$new(circ$center, circ$radius*circ$radius)
+}
 
 #' Inversion swapping two circles
 #' @description Return the inversion which swaps two given circles.
@@ -211,23 +222,70 @@ Inversion <- R6Class(
 #' must be positive or negative
 #'
 #' @return An \code{Inversion} object, which maps \code{circ1} to \code{circ2}
-#' and \code{circ2} to \code{circ1}.
+#' and \code{circ2} to \code{circ1}, except in the case when \code{circ1}
+#' and \code{circ2} are congruent and tangent: in this case a \code{Reflection}
+#' object is returned (a reflection is an inversion on a line).
 #' @export
 inversionSwappingTwoCircles <- function(circ1, circ2, positive = TRUE){
   stopifnot(is(circ1, "Circle"), is(circ2, "Circle"))
   c1 <- circ1$center; r1 <- circ1$radius
   c2 <- circ2$center; r2 <- circ2$radius
-  ok <- TRUE
-  if(positive && r1 == r2){
-    warning("`positive = TRUE` not possible; switching to `FALSE`")
-    ok <- FALSE
+  c1c2 <- .distance(c1, c2)
+  if(r1 == r2){
+    I <- (c1 + c2) / 2
+    if(c1c2 < r1+r2){ # they intersect at two points or are equal
+      if(!positive){
+        warning("`positive = FALSE` not possible; switching to `TRUE`")
+      }
+      k <- abs(c(crossprod(I-c2)) - r2*r2)
+      return(Inversion$new(I, k))
+    }else if(c1c2 > r1+r2){ # they do not intersect
+      if(positive){
+        warning("`positive = TRUE` not possible; switching to `FALSE`")
+      }
+      k <- -abs(c(crossprod(I-c2)) - r2*r2)
+      return(Inversion$new(I, k))
+    }else{ # they touch
+      warning("No possible inversion; returning a reflection")
+      c1_c2 <- c2 - c1
+      v <- c(c1_c2[2L], -c1_c2[1L])
+      return(Reflection$new(Line$new(I+v, I-v)))
+    }
+  }
+  # ok <- TRUE
+  # if(positive && r1 == r2){
+  #   warning("`positive = TRUE` not possible; switching to `FALSE`")
+  #   ok <- FALSE
+  # }
+  inside <- FALSE
+  inside_tangent <- FALSE
+  if(max(r1,r2) >= c1c2 + min(r1,r2)){
+    inside <- TRUE
+    inside_tangent <- max(r1,r2) == c1c2 + min(r1,r2)
+  }
+  if(!positive && (!inside || inside_tangent)){
+    circlesIntersect <- c1c2 <= r1+r2
+    if(circlesIntersect){
+      warning("`positive = FALSE` not possible; switching to `TRUE`")
+      positive <- TRUE
+    }
   }
   a <- r1/r2
-  if(positive && ok){
-    O <- -r2/(r1-r2) * c1 + r1/(r1-r2) * c2
+  if(positive){# && ok){
+    #O <- -r2/(r1-r2) * c1 + r1/(r1-r2) * c2
+    O <- if(inside){
+      c1 + a/(1+a) * (c2-c1)
+    }else{
+      c1 - a/(1-a) * (c2-c1)
+    }
     Inversion$new(O, a * abs(c(crossprod(O - c2)) - r2*r2))
   }else{
-    O <- r2/(r1+r2) * c1 + r1/(r1+r2) * c2
+    #O <- r2/(r1+r2) * c1 + r1/(r1+r2) * c2
+    O <- if(inside){
+      c1 - a/(1-a) * (c2-c1)
+    }else{
+      c1 + a/(1+a) * (c2-c1)
+    }
     Inversion$new(O, -a * abs(c(crossprod(O - c2)) - r2*r2))
   }
 }

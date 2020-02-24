@@ -98,7 +98,10 @@ draw(arc, lwd = 3, col = "blue")
 \item \href{#method-pointFromAngle}{\code{Circle$pointFromAngle()}}
 \item \href{#method-diameter}{\code{Circle$diameter()}}
 \item \href{#method-tangent}{\code{Circle$tangent()}}
+\item \href{#method-tangentsThroughExternalPoint}{\code{Circle$tangentsThroughExternalPoint()}}
 \item \href{#method-isEqual}{\code{Circle$isEqual()}}
+\item \href{#method-isOrthogonal}{\code{Circle$isOrthogonal()}}
+\item \href{#method-angle}{\code{Circle$angle()}}
 \item \href{#method-includes}{\code{Circle$includes()}}
 \item \href{#method-orthogonalThroughTwoPointsOnCircle}{\code{Circle$orthogonalThroughTwoPointsOnCircle()}}
 \item \href{#method-orthogonalThroughTwoPointsWithinCircle}{\code{Circle$orthogonalThroughTwoPointsWithinCircle()}}
@@ -255,11 +258,66 @@ invisible(lapply(tangents, draw, col = "blue"))
 
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-tangentsThroughExternalPoint"></a>}}
+\subsection{Method \code{tangentsThroughExternalPoint()}}{
+Return the two tangents of the reference circle passing
+through an external point.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Circle$tangentsThroughExternalPoint(P)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{P}}{a point external to the reference circle}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A list of two \code{Line} objects, the two tangents; the
+tangency points are in the \code{B} field of the lines.
+}
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-isEqual"></a>}}
 \subsection{Method \code{isEqual()}}{
 Check whether the reference circle equals another circle.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Circle$isEqual(circ)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{circ}}{a \code{Circle} object}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-isOrthogonal"></a>}}
+\subsection{Method \code{isOrthogonal()}}{
+Check whether the reference circle is orthogonal to a
+given circle
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Circle$isOrthogonal(circ)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{circ}}{a \code{Circle} object}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-angle"></a>}}
+\subsection{Method \code{angle()}}{
+Angle between the reference circle and a given circle,
+if they intersect.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Circle$angle(circ)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{

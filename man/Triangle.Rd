@@ -20,7 +20,7 @@ A_JA <- Line$new(A, JA, FALSE, FALSE)
 B_JB <- Line$new(B, JB, FALSE, FALSE)
 C_JC <- Line$new(C, JC, FALSE, FALSE)
 opar <- par(mar = c(0,0,0,0))
-plot(0, 0, type = "n", asp = 1, xlim = c(0,6), ylim = c(-4,4),
+plot(NULL, asp = 1, xlim = c(0,6), ylim = c(-4,4),
      xlab = NA, ylab = NA, axes = FALSE)
 draw(t, lwd = 2)
 draw(incircle, border = "orange")
@@ -75,12 +75,32 @@ points(rbind(NagelPoint), pch = 19)
 par(opar)
 
 ## ------------------------------------------------
+## Method `Triangle$symmedialTriangle`
+## ------------------------------------------------
+
+t <- Triangle$new(c(0,-2), c(0.5,1), c(3,0.6))
+symt <- t$symmedialTriangle()
+symmedianA <- Line$new(t$A, symt$A, FALSE, FALSE)
+symmedianB <- Line$new(t$B, symt$B, FALSE, FALSE)
+symmedianC <- Line$new(t$C, symt$C, FALSE, FALSE)
+K <- t$symmedianPoint()
+opar <- par(mar = c(0,0,0,0))
+plot(NULL, asp = 1, xlim = c(-1,5), ylim = c(-3,3),
+     xlab = NA, ylab = NA, axes = FALSE)
+draw(t, lwd = 2)
+draw(symmedianA, lwd = 2, col = "blue")
+draw(symmedianB, lwd = 2, col = "blue")
+draw(symmedianC, lwd = 2, col = "blue")
+points(rbind(K), pch = 19, col = "red")
+par(opar)
+
+## ------------------------------------------------
 ## Method `Triangle$MalfattiCircles`
 ## ------------------------------------------------
 
 t <- Triangle$new(c(0,0), c(2,0.5), c(1.5,2))
 Mcircles <- t$MalfattiCircles(TRUE)
-plot(0, 0, type="n", asp = 1, xlim = c(0,2.5), ylim = c(0,2.5),
+plot(NULL, asp = 1, xlim = c(0,2.5), ylim = c(0,2.5),
      xlab = NA, ylab = NA)
 grid()
 draw(t, col = "blue", lwd = 2)
@@ -97,6 +117,28 @@ t <- Triangle$new(c(0,0), c(2,1), c(5,7))
 incircle <- t$incircle()
 t$trilinearToPoint(1, 1, 1)
 incircle$center
+
+## ------------------------------------------------
+## Method `Triangle$SteinerEllipse`
+## ------------------------------------------------
+
+t <- Triangle$new(c(0,0), c(2,0.5), c(1.5,2))
+ell <- t$SteinerEllipse()
+plot(NULL, asp = 1, xlim = c(0,2.5), ylim = c(-0.7,2.4),
+     xlab = NA, ylab = NA)
+draw(t, col = "blue", lwd = 2)
+draw(ell, border = "red", lwd =2)
+
+## ------------------------------------------------
+## Method `Triangle$SteinerInellipse`
+## ------------------------------------------------
+
+t <- Triangle$new(c(0,0), c(2,0.5), c(1.5,2))
+ell <- t$SteinerInellipse()
+plot(NULL, asp = 1, xlim = c(0,2.5), ylim = c(-0.1,2.4),
+     xlab = NA, ylab = NA)
+draw(t, col = "blue", lwd = 2)
+draw(ell, border = "red", lwd =2)
 }
 \seealso{
 \code{\link{TriangleThreeLines}} to define a triangle by three lines.
@@ -122,6 +164,7 @@ incircle$center
 \item \href{#method-b}{\code{Triangle$b()}}
 \item \href{#method-c}{\code{Triangle$c()}}
 \item \href{#method-edges}{\code{Triangle$edges()}}
+\item \href{#method-orientation}{\code{Triangle$orientation()}}
 \item \href{#method-contains}{\code{Triangle$contains()}}
 \item \href{#method-isAcute}{\code{Triangle$isAcute()}}
 \item \href{#method-angleA}{\code{Triangle$angleA()}}
@@ -134,7 +177,12 @@ incircle$center
 \item \href{#method-orthocenter}{\code{Triangle$orthocenter()}}
 \item \href{#method-area}{\code{Triangle$area()}}
 \item \href{#method-incircle}{\code{Triangle$incircle()}}
+\item \href{#method-inradius}{\code{Triangle$inradius()}}
+\item \href{#method-incenter}{\code{Triangle$incenter()}}
 \item \href{#method-excircles}{\code{Triangle$excircles()}}
+\item \href{#method-excentralTriangle}{\code{Triangle$excentralTriangle()}}
+\item \href{#method-BevanPoint}{\code{Triangle$BevanPoint()}}
+\item \href{#method-medialTriangle}{\code{Triangle$medialTriangle()}}
 \item \href{#method-orthicTriangle}{\code{Triangle$orthicTriangle()}}
 \item \href{#method-incentralTriangle}{\code{Triangle$incentralTriangle()}}
 \item \href{#method-NagelTriangle}{\code{Triangle$NagelTriangle()}}
@@ -142,14 +190,30 @@ incircle$center
 \item \href{#method-GergonneTriangle}{\code{Triangle$GergonneTriangle()}}
 \item \href{#method-GergonnePoint}{\code{Triangle$GergonnePoint()}}
 \item \href{#method-tangentialTriangle}{\code{Triangle$tangentialTriangle()}}
+\item \href{#method-symmedialTriangle}{\code{Triangle$symmedialTriangle()}}
+\item \href{#method-symmedianPoint}{\code{Triangle$symmedianPoint()}}
 \item \href{#method-circumcircle}{\code{Triangle$circumcircle()}}
+\item \href{#method-circumcenter}{\code{Triangle$circumcenter()}}
+\item \href{#method-circumradius}{\code{Triangle$circumradius()}}
+\item \href{#method-BrocardCircle}{\code{Triangle$BrocardCircle()}}
+\item \href{#method-BrocardPoints}{\code{Triangle$BrocardPoints()}}
+\item \href{#method-LemoineCircleI}{\code{Triangle$LemoineCircleI()}}
+\item \href{#method-LemoineCircleII}{\code{Triangle$LemoineCircleII()}}
+\item \href{#method-LemoineTriangle}{\code{Triangle$LemoineTriangle()}}
+\item \href{#method-LemoineCircleIII}{\code{Triangle$LemoineCircleIII()}}
+\item \href{#method-ParryCircle}{\code{Triangle$ParryCircle()}}
+\item \href{#method-pedalTriangle}{\code{Triangle$pedalTriangle()}}
+\item \href{#method-CevianTriangle}{\code{Triangle$CevianTriangle()}}
 \item \href{#method-MalfattiCircles}{\code{Triangle$MalfattiCircles()}}
 \item \href{#method-AjimaMalfatti1}{\code{Triangle$AjimaMalfatti1()}}
 \item \href{#method-AjimaMalfatti2}{\code{Triangle$AjimaMalfatti2()}}
 \item \href{#method-equalDetourPoint}{\code{Triangle$equalDetourPoint()}}
 \item \href{#method-trilinearToPoint}{\code{Triangle$trilinearToPoint()}}
+\item \href{#method-pointToTrilinear}{\code{Triangle$pointToTrilinear()}}
 \item \href{#method-rotate}{\code{Triangle$rotate()}}
 \item \href{#method-translate}{\code{Triangle$translate()}}
+\item \href{#method-SteinerEllipse}{\code{Triangle$SteinerEllipse()}}
+\item \href{#method-SteinerInellipse}{\code{Triangle$SteinerInellipse()}}
 \item \href{#method-randomPoints}{\code{Triangle$randomPoints()}}
 \item \href{#method-clone}{\code{Triangle$clone()}}
 }
@@ -261,9 +325,21 @@ A named numeric vector.
 }
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-orientation"></a>}}
+\subsection{Method \code{orientation()}}{
+Determine the orientation of the triangle.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Triangle$orientation()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+An integer: 1 for counterclockwise, -1 for clockwise, 0 for collinear.
+}
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-contains"></a>}}
 \subsection{Method \code{contains()}}{
-Determines whether a point lies inside the reference triangle.
+Determine whether a point lies inside the reference triangle.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Triangle$contains(M)}\if{html}{\out{</div>}}
 }
@@ -398,6 +474,24 @@ A \code{Circle} object.
 }
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-inradius"></a>}}
+\subsection{Method \code{inradius()}}{
+Inradius of the reference triangle.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Triangle$inradius()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-incenter"></a>}}
+\subsection{Method \code{incenter()}}{
+Incenter of the reference triangle.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Triangle$incenter()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-excircles"></a>}}
 \subsection{Method \code{excircles()}}{
 Excircles of the triangle.
@@ -408,6 +502,38 @@ Excircles of the triangle.
 \subsection{Returns}{
 A list with the three excircles, \code{Circle} objects.
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-excentralTriangle"></a>}}
+\subsection{Method \code{excentralTriangle()}}{
+Excentral triangle of the reference triangle.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Triangle$excentralTriangle()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+A \code{Triangle} object.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-BevanPoint"></a>}}
+\subsection{Method \code{BevanPoint()}}{
+Bevan point. This is the circumcenter of the
+excentral triangle.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Triangle$BevanPoint()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-medialTriangle"></a>}}
+\subsection{Method \code{medialTriangle()}}{
+Medial triangle. Its vertices are the mid-points of the
+sides of the reference triangle.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Triangle$medialTriangle()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-orthicTriangle"></a>}}
@@ -531,13 +657,60 @@ Gergonne point of the reference triangle.
 \subsection{Method \code{tangentialTriangle()}}{
 Tangential triangle of the reference triangle.
 This is the triangle formed by the lines tangent to the circumcircle of
-the reference triangle at its vertices.
+the reference triangle at its vertices. It does not exist for a
+right triangle.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Triangle$tangentialTriangle()}\if{html}{\out{</div>}}
 }
 
 \subsection{Returns}{
 A \code{Triangle} object.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-symmedialTriangle"></a>}}
+\subsection{Method \code{symmedialTriangle()}}{
+Symmedial triangle of the reference triangle.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Triangle$symmedialTriangle()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+A \code{Triangle} object.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{t <- Triangle$new(c(0,-2), c(0.5,1), c(3,0.6))
+symt <- t$symmedialTriangle()
+symmedianA <- Line$new(t$A, symt$A, FALSE, FALSE)
+symmedianB <- Line$new(t$B, symt$B, FALSE, FALSE)
+symmedianC <- Line$new(t$C, symt$C, FALSE, FALSE)
+K <- t$symmedianPoint()
+opar <- par(mar = c(0,0,0,0))
+plot(NULL, asp = 1, xlim = c(-1,5), ylim = c(-3,3),
+     xlab = NA, ylab = NA, axes = FALSE)
+draw(t, lwd = 2)
+draw(symmedianA, lwd = 2, col = "blue")
+draw(symmedianB, lwd = 2, col = "blue")
+draw(symmedianC, lwd = 2, col = "blue")
+points(rbind(K), pch = 19, col = "red")
+par(opar)
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-symmedianPoint"></a>}}
+\subsection{Method \code{symmedianPoint()}}{
+Symmedian point of the reference triangle.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Triangle$symmedianPoint()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+A point.
 }
 }
 \if{html}{\out{<hr>}}
@@ -550,6 +723,153 @@ Circumcircle of the reference triangle.
 
 \subsection{Returns}{
 A \code{Circle} object.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-circumcenter"></a>}}
+\subsection{Method \code{circumcenter()}}{
+Circumcenter of the reference triangle.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Triangle$circumcenter()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-circumradius"></a>}}
+\subsection{Method \code{circumradius()}}{
+Circumradius of the reference triangle.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Triangle$circumradius()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-BrocardCircle"></a>}}
+\subsection{Method \code{BrocardCircle()}}{
+The Brocard circle of the reference triangle (also known
+as the seven-point circle).
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Triangle$BrocardCircle()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+A \code{Circle} object.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-BrocardPoints"></a>}}
+\subsection{Method \code{BrocardPoints()}}{
+Brocard points of the reference triangle.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Triangle$BrocardPoints()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+A list of two points, the first Brocard point and the second
+Brocard point.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-LemoineCircleI"></a>}}
+\subsection{Method \code{LemoineCircleI()}}{
+The first Lemoine circle of the reference triangle.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Triangle$LemoineCircleI()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+A \code{Circle} object.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-LemoineCircleII"></a>}}
+\subsection{Method \code{LemoineCircleII()}}{
+The second Lemoine circle of the reference triangle (also
+known as the cosine circle)
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Triangle$LemoineCircleII()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+A \code{Circle} object.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-LemoineTriangle"></a>}}
+\subsection{Method \code{LemoineTriangle()}}{
+The Lemoine triangle of the reference triangle.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Triangle$LemoineTriangle()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+A \code{Triangle} object.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-LemoineCircleIII"></a>}}
+\subsection{Method \code{LemoineCircleIII()}}{
+The third Lemoine circle of the reference triangle.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Triangle$LemoineCircleIII()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+A \code{Circle} object.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ParryCircle"></a>}}
+\subsection{Method \code{ParryCircle()}}{
+Parry circle of the reference triangle.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Triangle$ParryCircle()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+A \code{Circle} object.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-pedalTriangle"></a>}}
+\subsection{Method \code{pedalTriangle()}}{
+Pedal triangle of a point with respect to the reference
+triangle. The pedal triangle of a point \code{P} is the triangle whose
+vertices are the feet of the perpendiculars from \code{P} to the sides
+of the reference triangle.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Triangle$pedalTriangle(P)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{P}}{a point}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A \code{Triangle} object.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CevianTriangle"></a>}}
+\subsection{Method \code{CevianTriangle()}}{
+Cevian triangle of a point with respect to the reference
+triangle.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Triangle$CevianTriangle(P)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{P}}{a point}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A \code{Triangle} object.
 }
 }
 \if{html}{\out{<hr>}}
@@ -575,7 +895,7 @@ A list with the three Malfatti circles, \code{Circle} objects.
 \if{html}{\out{<div class="r example copy">}}
 \preformatted{t <- Triangle$new(c(0,0), c(2,0.5), c(1.5,2))
 Mcircles <- t$MalfattiCircles(TRUE)
-plot(0, 0, type="n", asp = 1, xlim = c(0,2.5), ylim = c(0,2.5),
+plot(NULL, asp = 1, xlim = c(0,2.5), ylim = c(0,2.5),
      xlab = NA, ylab = NA)
 grid()
 draw(t, col = "blue", lwd = 2)
@@ -659,6 +979,26 @@ incircle$center
 
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-pointToTrilinear"></a>}}
+\subsection{Method \code{pointToTrilinear()}}{
+Give the trilinear coordinates of a point with respect to
+the reference triangle.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Triangle$pointToTrilinear(P)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{P}}{a point}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The trilinear coordinates, a numeric vector of length 3.
+}
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-rotate"></a>}}
 \subsection{Method \code{rotate()}}{
 Rotate the triangle.
@@ -699,6 +1039,60 @@ Translate the triangle.
 \subsection{Returns}{
 A \code{Triangle} object.
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-SteinerEllipse"></a>}}
+\subsection{Method \code{SteinerEllipse()}}{
+The Steiner ellipse (or circumellipse) of the reference
+triangle. This is the ellipse passing through the three vertices of
+the triangle and centered at the centroid of the triangle.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Triangle$SteinerEllipse()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+An \code{Ellipse} object.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{t <- Triangle$new(c(0,0), c(2,0.5), c(1.5,2))
+ell <- t$SteinerEllipse()
+plot(NULL, asp = 1, xlim = c(0,2.5), ylim = c(-0.7,2.4),
+     xlab = NA, ylab = NA)
+draw(t, col = "blue", lwd = 2)
+draw(ell, border = "red", lwd =2)
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-SteinerInellipse"></a>}}
+\subsection{Method \code{SteinerInellipse()}}{
+The Steiner inellipse (or midpoint ellipse) of the reference
+triangle. This is the ellipse tangent to the sides of the triangle at
+their midpoints, and centered at the centroid of the triangle.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Triangle$SteinerInellipse()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+An \code{Ellipse} object.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{t <- Triangle$new(c(0,0), c(2,0.5), c(1.5,2))
+ell <- t$SteinerInellipse()
+plot(NULL, asp = 1, xlim = c(0,2.5), ylim = c(-0.1,2.4),
+     xlab = NA, ylab = NA)
+draw(t, col = "blue", lwd = 2)
+draw(ell, border = "red", lwd =2)
+}
+\if{html}{\out{</div>}}
+
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-randomPoints"></a>}}
