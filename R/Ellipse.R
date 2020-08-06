@@ -312,13 +312,21 @@ Ellipse <- R6Class(
     },
 
     #' @description Intersection point of the ellipse with the half-line
-    #' starting at the ellipse center and with director angle \code{theta}.
+    #' starting at the ellipse center and forming angle \code{theta} with
+    #' the major axis.
     #' @param theta a number, the angle, or a numeric vector
     #' @param degrees logical, whether \code{theta} is given in degrees
     #' @return A point of the ellipse if \code{length(theta)==1} or a
     #' two-column matrix of points of the ellipse if
     #' \code{length(theta) > 1} (one point per row).
     pointFromAngle = function(theta, degrees = TRUE){
+      theta <- as.vector(theta)
+      stopifnot(
+        is.numeric(theta),
+        length(theta) >= 1L,
+        !any(is.na(theta)),
+        all(is.finite(theta))
+      )
       O <- private[[".center"]]
       a <- private[[".rmajor"]]
       b <- private[[".rminor"]]
@@ -327,7 +335,7 @@ Ellipse <- R6Class(
       if(degrees) theta <- theta * pi/180
       #t <- sort(atan2(a * tan(theta), b) %% (2*pi))
       sgn <- ifelse(theta %% (2*pi) <= sqrt(.Machine$double.eps), 1, -1)
-      t <- atan2(a/b, 1/tan(theta)) +
+      t <- atan2(a/b, 1/tan(theta %% (2*pi))) +
         theta + sgn*sqrt(.Machine$double.eps) -
         (theta + sgn*sqrt(.Machine$double.eps)) %% pi
       # t <- ifelse(theta <= pi,
@@ -337,6 +345,29 @@ Ellipse <- R6Class(
       #                    atan2(a/b,1/tan(theta)) + 2*pi))
       out <- .ellipsePoints(t, O, a, b, alpha)
       if(length(theta) == 1L) out <- c(out)
+      out
+    },
+
+    #' @description Point of the ellipse with given eccentric angle.
+    #' @param t a number, the eccentric angle in radians, or a numeric vector
+    #' @return A point of the ellipse if \code{length(t)==1} or a
+    #' two-column matrix of points of the ellipse if
+    #' \code{length(t) > 1} (one point per row).
+    pointFromEccentricAngle = function(t){
+      t <- as.vector(t)
+      stopifnot(
+        is.numeric(t),
+        length(t) >= 1L,
+        !any(is.na(t)),
+        all(is.finite(t))
+      )
+      O <- private[[".center"]]
+      a <- private[[".rmajor"]]
+      b <- private[[".rminor"]]
+      alpha <- private[[".alpha"]]
+      if(private[[".degrees"]]) alpha <- alpha * pi/180
+      out <- .ellipsePoints(t, O, a, b, alpha)
+      if(length(t) == 1L) out <- c(out)
       out
     },
 
@@ -375,8 +406,9 @@ Ellipse <- R6Class(
       list(F1 = O + e*O_A, F2 = O - e*O_A)
     },
 
-    #' @description Tangents of the reference ellipse.
-    #' @param t an angle, there is one tangent for each value of \code{t}
+    #' @description Tangents of the reference ellipse at a point given by
+    #' its eccentric angle.
+    #' @param t eccentric angle, there is one tangent for each value of \code{t}
     #' modulo \code{2*pi}; for \code{t = 0, pi/2, pi, -pi/2}, these are the
     #' tangents at the vertices of the ellipse
     #' @examples ell <- Ellipse$new(c(1,1), 5, 2, 30)
@@ -409,6 +441,81 @@ Ellipse <- R6Class(
         sinalpha*x + cosalpha*y
       )
       Line$new(T, T+v)
+    },
+
+    #' @description Normal unit vector to the ellipse.
+    #' @param t a number, the eccentric angle in radians of the point of the
+    #' ellipse at which we want the normal unit vector
+    #' @return The normal unit vector to the ellipse at the point given by
+    #' eccentric angle \code{t}.
+    #' @examples ell <- Ellipse$new(c(1,1), 5, 2, 30)
+    #' t_ <- seq(0, 2*pi, length.out = 13)[-1]
+    #' plot(NULL, asp = 1, xlim = c(-5,7), ylim = c(-3,5),
+    #'      xlab = NA, ylab = NA)
+    #' draw(ell, col = "magenta")
+    #' for(i in 1:length(t_)){
+    #'   t <- t_[i]
+    #'   P <- ell$pointFromEccentricAngle(t)
+    #'   v <- ell$normal(t)
+    #'   draw(Line$new(P, P+v, FALSE, FALSE))
+    #' }
+    normal = function(t){
+      t <- as.vector(t)
+      stopifnot(
+        is.numeric(t),
+        length(t) == 1L,
+        !is.na(t),
+        is.finite(t)
+      )
+      O <- private[[".center"]]
+      a <- private[[".rmajor"]]; b <- private[[".rminor"]]
+      alpha <- private[[".alpha"]]
+      if(private[[".degrees"]]) alpha <- alpha * pi/180
+      cosalpha <- cos(alpha); sinalpha <- sin(alpha)
+      x <- -a*sin(t); y <- b*cos(t)
+      v <- c(
+        sinalpha*x + cosalpha*y,
+        -cosalpha*x + sinalpha*y
+      )
+      v / .vlength(v)
+    },
+
+    #' @description Convert angle to eccentric angle.
+    #' @param theta angle between the major axis and the half-line starting
+    #' at the center of the ellipse and passing through the point of interest
+    #' on the ellipse
+    #' @param degrees logical, whether \code{theta} is given in degrees
+    #' @return The eccentric angle of the point of interest on the ellipse,
+    #' in radians.
+    #' @examples O <- c(1, 1)
+    #' ell <- Ellipse$new(O, 5, 2, 30)
+    #' theta <- 20
+    #' P <- ell$pointFromAngle(theta)
+    #' t <- ell$theta2t(theta)
+    #' tg <- ell$tangent(t)
+    #' OP <- Line$new(O, P, FALSE, FALSE)
+    #' plot(NULL, asp = 1, xlim = c(-4,6), ylim = c(-2,5),
+    #'      xlab = NA, ylab = NA)
+    #' draw(ell, col = "antiquewhite")
+    #' points(P[1], P[2], pch = 19)
+    #' draw(tg, col = "red")
+    #' draw(OP)
+    #' draw(ell$semiMajorAxis())
+    #' text(t(O+c(1,0.9)), expression(theta))
+    theta2t = function(theta, degrees = TRUE){
+      theta <- as.vector(theta)
+      stopifnot(
+        is.numeric(theta),
+        length(theta) == 1L,
+        !is.na(theta),
+        is.finite(theta)
+      )
+      a <- private[[".rmajor"]]; b <- private[[".rminor"]]
+      if(degrees) theta <- theta * pi/180
+      sgn <- ifelse(theta %% (2*pi) <= sqrt(.Machine$double.eps), 1, -1)
+      atan2(a/b, 1/tan(theta %% (2*pi))) +
+        theta + sgn*sqrt(.Machine$double.eps) -
+        (theta + sgn*sqrt(.Machine$double.eps)) %% pi
     },
 
     #' @description Regression lines. The regression line of y on x intersects
