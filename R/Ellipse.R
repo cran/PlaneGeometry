@@ -286,7 +286,6 @@ Ellipse <- R6Class(
     #' draw(ell)
     #' invisible(lapply(diameters, draw))
     diameter = function(t, conjugate = FALSE){
-      center <- private[[".center"]]
       alpha <- private[[".alpha"]]
       if(private[[".degrees"]]) alpha <- alpha * pi/180
       ts <- if(conjugate){
@@ -758,4 +757,46 @@ LownerJohnEllipse <- function(pts){
   B[2L,1L] <- B[1L,2L] <- y[3L]
   EllipseFromCenterAndMatrix(-c(chol2inv(chol(B)) %*% y[c(4L,5L)]),
                              tcrossprod(B))
+}
+
+#' @title Smallest ellipse that passes through three boundary points
+#' @description Returns the smallest area ellipse which passes through
+#'   three given boundary points.
+#'
+#' @param P1,P2,P3 three non-collinear points
+#'
+#' @return An \code{Ellipse} object.
+#' @export
+#'
+#' @examples
+#' P1 <- c(-1,0); P2 <- c(0, 2); P3 <- c(3,0)
+#' ell <- EllipseFromThreeBoundaryPoints(P1, P2, P3)
+#' ell$includes(P1); ell$includes(P2); ell$includes(P3)
+EllipseFromThreeBoundaryPoints <- function(P1, P2, P3){
+  if(.collinear(P1, P2, P3)){
+    stop("The three points are collinear.")
+  }
+  points <- rbind(P1, P2, P3)
+  means <- colMeans(points)
+  cpoints <- sweep(points, 2L, means)
+  S <- 1.5 * solve(crossprod(cpoints))
+  EllipseFromCenterAndMatrix(means, S)
+}
+
+#' @title Ellipse from foci and one point
+#' @description Derive the ellipse with given foci and one point on the boundary.
+#'
+#' @param F1,F2 points, the foci
+#' @param P a point on the boundary of the ellipse
+#'
+#' @return An \code{Ellipse} object.
+#' @export
+EllipseFromFociAndOnePoint <- function(F1, F2, P){
+  k <- .distance(P, F1) + .distance(P, F2)
+  a <- k/2
+  center <- (F1 + F2) / 2
+  d <- .distance(center, F1)
+  b <- sqrt(a*a - d*d)
+  alpha <- atan(abs(F1[2]-F2[2])/abs(F1[1]-F2[1]))
+  Ellipse$new(center, a, b, alpha, degrees = FALSE)
 }

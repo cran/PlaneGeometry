@@ -7,7 +7,7 @@ test_that("Triangle$contains", {
   expect_true(all(apply(pts, 1L, t$contains)))
 })
 
-test_that("Malfatii circles are tangent", {
+test_that("Malfatti circles are tangent", {
   t <- Triangle$new(c(0,0), c(1,5), c(3,3))
   Mcircles <- t$MalfattiCircles(tangencyPoints = TRUE)
   C1 <- Mcircles[[1L]]; C2 <- Mcircles[[2L]]; C3 <- Mcircles[[3L]]
@@ -146,4 +146,15 @@ test_that("Steiner ellipse/inellipse", {
   inell <- t$SteinerInellipse()
   ell <- t$medialTriangle()$SteinerEllipse()
   expect_true(ell$isEqual(inell))
+})
+
+test_that("Hexyl triangle", {
+  t <- Triangle$new(c(0,0), c(1,5), c(3,3))
+  ht <- t$hexylTriangle()
+  et <- t$excentralTriangle()
+  HA <- ht$A; HB <- ht$B; HC <- ht$C
+  JA <- et$A; JB <- et$B; JC <- et$C
+  HAJC <- Line$new(HA, JC)
+  HCJA <- Line$new(HC, JA)
+  expect_true(HAJC$isParallel(HCJA))
 })

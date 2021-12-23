@@ -26,7 +26,7 @@ lineFCprime <- Line$new(DEF$C, Cprime)
 # check whether the Exeter point is also on (FC')
 lineFCprime$includes(ExeterPoint)
 
-## ----Exeter, fig.width=5, fig.height=5----------------------------------------
+## ----Exeter, fig.width=4, fig.height=4----------------------------------------
 opar <- par(mar = c(0,0,0,0))
 plot(NULL, asp = 1, xlim = c(-2,9), ylim = c(-6,7),
      xlab = NA, ylab = NA, axes = FALSE)
@@ -75,7 +75,7 @@ T1p <- iota1$invert(T1); T1pp <- iota2$invert(T1)
 # the circle passing through T1 and its two images is another solution
 Csolution1 <- Triangle$new(T1, T1p, T1pp)$circumcircle()
 
-## ----tangentCircles, fig.width=5, fig.height=5--------------------------------
+## ----tangentCircles, fig.width=4, fig.height=4--------------------------------
 opar <- par(mar = c(0,0,0,0))
 plot(NULL, asp = 1, xlim = c(-4,9), ylim = c(-4,9),
      xlab = NA, ylab = NA, axes = FALSE)
@@ -98,7 +98,7 @@ iota <- inversionFixingThreeCircles(excircles$A, excircles$B, excircles$C)
 # Apollonius circle
 ApolloniusCircle <- iota$invertCircle(npc)
 
-## ----apollonius, fig.width=5, fig.height=5------------------------------------
+## ----apollonius, fig.width=4, fig.height=4------------------------------------
 opar <- par(mar = c(0,0,0,0))
 plot(NULL, asp = 1, xlim = c(-10,14), ylim = c(-5, 18),
      xlab = NA, ylab = NA, axes = FALSE)
@@ -115,7 +115,7 @@ semiperimeter <- sum(t$edges()) / 2
 (inradius^2 + semiperimeter^2) / (4*inradius)
 ApolloniusCircle$radius
 
-## ----lappingArea, fig.width=5, fig.height=5-----------------------------------
+## ----lappingArea, fig.width=4, fig.height=4-----------------------------------
 O1 <- c(2,5); circ1 <- Circle$new(O1, 2)
 O2 <- c(4,4); circ2 <- Circle$new(O2, 3)
 
@@ -221,7 +221,7 @@ tessellation <- function(depth, Thetas0, colors){
   invisible()
 }
 
-## ----tessellation, fig.width=5, fig.height=5----------------------------------
+## ----tessellation, fig.width=4, fig.height=4----------------------------------
 tessellation(
   depth = 5L, 
   Thetas0 = c(0, 2, 3.8), 
@@ -328,7 +328,7 @@ tessellation2 <- function(depth, Thetas0, colors){
   invisible()
 }
 
-## ----tessellation2, fig.width=5, fig.height=5---------------------------------
+## ----tessellation2, fig.width=4, fig.height=4---------------------------------
 tessellation2(
   depth = 5L, 
   Thetas0 = c(0, 2, 3.8), 
@@ -358,7 +358,7 @@ halfT1$extendA <- FALSE
 I <- intersectionCircleLine(circ, halfT1, strict = TRUE)
 T2 <- T1$perpendicular(I)
 
-## ----directorCircle, fig.width=5, fig.height=5--------------------------------
+## ----directorCircle, fig.width=4, fig.height=4--------------------------------
 opar <- par(mar=c(0,0,0,0))
 plot(NULL, asp = 1, 
      xlim = c(-3,6), ylim = c(-5,7), xlab = NA, ylab = NA)
@@ -386,7 +386,7 @@ f <- AffineMappingEllipse2Ellipse(c0, ell)
 # take the images of the Steiner circles by this transformation
 ellipses <- lapply(circles, f$transformEllipse)
 
-## ----ellipticalSteiner, fig.width=6, fig.height=4-----------------------------
+## ----ellipticalSteiner, fig.width=4, fig.height=4-----------------------------
 opar <- par(mar = c(0,0,0,0))
 plot(NULL, asp = 1, xlim = c(-8,6), ylim = c(-4,4), 
      xlab = NA, ylab = NA, axes = FALSE)
@@ -435,7 +435,7 @@ chains <- lapply(circles[1:3], function(c0){
   SteinerChain(c0, 3, -0.2, 0.5)
 })
 
-## ----nestedSteiner, fig.width=5, fig.height=5---------------------------------
+## ----nestedSteiner, fig.width=4, fig.height=4---------------------------------
 opar <- par(mar = c(0,0,0,0))
 plot(NULL, asp = 1, xlim = c(0,6), ylim = c(-4,4), 
      xlab = NA, ylab = NA, axes = FALSE)
@@ -448,7 +448,7 @@ invisible(lapply(chains, function(circles){
 }))
 par(opar)
 
-## ----billiard, fig.width=5, fig.height=5--------------------------------------
+## ----billiard, fig.width=4, fig.height=4--------------------------------------
 reflect <- function(incidentDir, normalVec){
   incidentDir - 2*c(crossprod(normalVec, incidentDir)) * normalVec
 }
@@ -496,4 +496,655 @@ par(opar)
 #    Sys.sleep(0.3)
 #  }
 #  par(opar)
+
+## ----gcircles-----------------------------------------------------------------
+# generation 0
+angles <- c(0, pi/2, pi, 3*pi/2)
+bigCircle <- Circle$new(center = c(0, 0), radius = 2)
+attr(bigCircle, "gen") <- 0L
+attr(bigCircle, "base") <- length(angles) + 1L
+gen0 <- c(
+  lapply(seq_along(angles), function(i){
+    beta <- angles[i]
+    circle <- Circle$new(center = c(cos(beta), sin(beta)), radius = 1)
+    attr(circle, "gen") <- 0L
+    attr(circle, "base") <- i
+    circle
+  }),
+  list(
+    bigCircle
+  )
+)
+n0 <- length(gen0)
+
+# generations 1, 2, 3
+generations <- vector("list", length = 4L)
+generations[[1L]] <- gen0
+for(g in 2L:4L){
+  gen <- generations[[g-1L]]
+  n <- length(gen)
+  n1 <- n*(n0 - 1L)
+  gen_new <- vector("list", length = n1)
+  k <- 0L
+  while(k < n1){
+    for(j in 1L:n){
+      gcircle_j <- gen[[j]]
+      base <- attr(gcircle_j, "base")
+      for(i in 1L:n0){
+        if(i != base){
+          k <- k + 1L
+          circ <- gen0[[i]]
+          iota <- Inversion$new(pole = circ$center, power = circ$radius^2)
+          gcircle <- iota$invertGcircle(gcircle_j)
+          attr(gcircle, "gen") <- g - 1L
+          attr(gcircle, "base") <- i
+          gen_new[[k]] <- gcircle
+        }
+      }
+    }
+  }
+  generations[[g]] <- gen_new
+}
+
+gcircles <- c(
+  generations[[1L]], generations[[2L]], generations[[3L]], generations[[4L]]
+)
+
+## -----------------------------------------------------------------------------
+length(gcircles)
+
+## ----uniqueWith---------------------------------------------------------------
+uniqueWith <- function(v, f){
+  size <- length(v)
+  for(i in seq_len(size-1L)){
+    j <- i + 1L
+    while(j <= size){
+      if(f(v[[i]], v[[j]])){
+        v <- v[-j]
+        size <- size - 1L
+      }else{
+        j <- j + 1L
+      }
+    }
+  }
+  v[1L:size]
+}
+
+## -----------------------------------------------------------------------------
+uniqueWith(
+  c(a = "you", b = "are", c = "great"),
+  function(x, y) nchar(x) == nchar(y)
+)
+
+## -----------------------------------------------------------------------------
+gcircles <- uniqueWith(
+  gcircles,
+  function(g1, g2){
+    class(g1)[1L] == class(g2)[1L] && g1$isEqual(g2)
+  }
+)
+
+## -----------------------------------------------------------------------------
+length(gcircles)
+
+## ----drawGcircle--------------------------------------------------------------
+drawGcircle <- function(gcircle, colors = rainbow(4L), ...){
+  gen <- attr(gcircle, "gen")
+  if(is(gcircle, "Circle")){
+    draw(gcircle, border = colors[1L + gen], ...)
+  }else{
+    draw(gcircle, col = colors[1L + gen], ...)
+  }
+}
+
+## ----draw_gcircles, fig.width=4, fig.height=4---------------------------------
+opar <- par(mar = c(0,0,0,0), bg = "black")
+plot(0, 0, type = "n", xlim = c(-2.3, 2.3), ylim = c(-2.3, 2.3),
+     asp = 1, axes = FALSE, xlab = NA, ylab = NA)
+invisible(lapply(gcircles, drawGcircle, lwd = 2))
+par(opar)
+
+## ----schottky, message=FALSE--------------------------------------------------
+library(freegroup)
+
+a <- alpha(1)
+A <- inverse(a)
+b <- alpha(2)
+B <- inverse(b)
+
+# words of size n
+n <- 6L
+G <- do.call(expand.grid, rep(list(c("a", "A", "b", "B")), n))
+G <- split(as.matrix(G), 1:nrow(G))
+G <- lapply(G, function(w){
+  sum(do.call(c.free, lapply(w, function(x) switch(x, a=a, A=A, b=b, B=B))))
+})
+G <- uniqueWith(G, free_equal)
+sizes <- vapply(G, total, numeric(1L))
+Gn <- G[sizes == n]
+
+# starting circles ####
+Ca <- Line$new(c(-1,0), c(1,0))
+Rc <- sqrt(2)/4
+yI <- -3*sqrt(2)/4
+CA <- Circle$new(c(0,yI), Rc)
+theta <- -0.5
+T <- c(Rc*cos(theta), yI+Rc*sin(theta))
+P <- c(T[1]+T[2]*tan(theta), 0)
+PT <- sqrt(c(crossprod(T-P)))
+xTprime <- P[1]+PT
+xPprime <- -yI/tan(theta)
+PprimeTprime <- abs(xTprime-xPprime)
+Rcprime <- abs(yI*PprimeTprime/xPprime)
+Cb <- Circle$new(c(xTprime, -Rcprime), Rcprime)
+CB <- Circle$new(c(-xTprime, -Rcprime), Rcprime)
+GCIRCLES <- list(a = Ca, A = CA, b = Cb, B = CB)
+
+# Mobius transformations ####
+Mob_a <- Mobius$new(rbind(c(sqrt(2), 1i), c(-1i, sqrt(2))))
+Mob_A <- Mob_a$inverse()
+
+toCplx <- function(xy) complex(real = xy[1], imaginary = xy[2])
+Mob_b <- Mobius$new(rbind(
+  c(toCplx(Cb$center), c(crossprod(Cb$center))-Cb$radius^2),
+  c(1, -toCplx(CB$center))
+))
+Mob_B <- Mob_b$inverse()
+
+MOBS <- list(a = Mob_a, A = Mob_A, b = Mob_b, B = Mob_B)
+
+# Conversion word of size n to circle
+word2seq <- function(g){
+  seq <- c()
+  gr <- reduce(g)[[1L]]
+  for(j in 1L:ncol(gr)){
+    monomial <- gr[, j]
+    t <- c("a", "b")[monomial[1L]]
+    i <- monomial[2L]
+    if(i < 0L){
+      i <- -i
+      t <- toupper(t)
+    }
+    seq <- c(seq, rep(t, i))
+  }
+  seq
+}
+word2circle <- function(g){
+  seq <- word2seq(g)
+  mobs <- MOBS[seq]
+  mobius <- Reduce(function(M1, M2) M1$compose(M2), mobs[-n])
+  mobius$transformGcircle(GCIRCLES[[seq[n]]])
+}
+
+## ----draw_schottky, fig.width=4, fig.height=4---------------------------------
+opar <- par(mar = c(0,0,0,0), bg = "black")
+plot(NULL, asp = 1, xlim = c(-3,3), ylim = c(-3,3),
+     axes = FALSE, xlab = NA, ylab = NA)
+draw(Ca); draw(CA); draw(Cb); draw(CB)
+C1 <- Mob_A$transformCircle(CA)
+C2 <- Mob_A$transformCircle(CB)
+C3 <- Mob_A$transformCircle(Cb)
+draw(C1, lwd = 2, border = "red")
+draw(C2, lwd = 2, border = "red")
+draw(C3, lwd = 2, border = "red")
+C1 <- Mob_a$transformLine(Ca)
+C2 <- Mob_a$transformCircle(Cb)
+C3 <- Mob_a$transformCircle(CB)
+draw(C1, lwd = 2, border = "green")
+draw(C2, lwd = 2, border = "green")
+draw(C3, lwd = 2, border = "green")
+C1 <- Mob_b$transformLine(Ca)
+C2 <- Mob_b$transformCircle(CA)
+C3 <- Mob_b$transformCircle(Cb)
+draw(C1, lwd = 2, border = "blue")
+draw(C2, lwd = 2, border = "blue")
+draw(C3, lwd = 2, border = "blue")
+C1 <- Mob_B$transformLine(Ca)
+C2 <- Mob_B$transformCircle(CA)
+C3 <- Mob_B$transformCircle(CB)
+draw(C1, lwd = 2, border = "yellow")
+draw(C2, lwd = 2, border = "yellow")
+draw(C3, lwd = 2, border = "yellow")
+for(g in Gn){
+  circ <- word2circle(g)
+  draw(circ, lwd = 2, border = "orange")
+}
+par(opar)
+
+## ----modularTesselation, message=FALSE----------------------------------------
+library(elliptic) # for the unimodular matrices
+
+# Möbius transformations
+T <- Mobius$new(rbind(c(0,-1), c(1,0)))
+U <- Mobius$new(rbind(c(1,1), c(0,1)))
+R <- U$compose(T)
+# R**t, generalized power
+Rt <- function(t){
+  R$gpower(t)
+}
+
+# starting circles
+I <- Circle$new(c(0, 1.5), 0.5)
+TI <- T$transformCircle(I)
+
+# modified Cayley transformation
+Phi <- Mobius$new(rbind(c(1i, 1), c(1, 1i)))
+
+
+draw_pair <- function(M, u, compose = FALSE){
+  if(compose) M <- M$compose(T)
+  A <- M$compose(Rt(u))$compose(Phi)
+  C <- A$transformCircle(I)
+  draw(C, col = "magenta")
+  C <- A$transformCircle(TI)
+  draw(C, col = "magenta")
+  if(!compose){
+    draw_pair(M, u, compose=TRUE)
+  }
+}
+
+n <- 8L
+transfos <- unimodular(n)
+
+fplot <- function(u){
+  opar <- par(mar = c(0,0,0,0), bg = "black")
+  plot(NULL, asp = 1, xlim = c(-1.1, 1.1), ylim = c(-1.1, 1.1),
+       axes = FALSE, xlab = NA, ylab = NA)
+  for(i in 1L:dim(transfos)[3L]){
+    transfo <- transfos[, , i]
+    M <- Mobius$new(transfo)
+    draw_pair(M, u)
+    M <- M$inverse()
+    draw_pair(M, u)
+    diag(transfo) <- -diag(transfo)
+    M <- Mobius$new(transfo)
+    draw_pair(M, u)
+    M <- M$inverse()
+    draw_pair(M, u)
+    d <- diag(transfo)
+    if(d[1L] != d[2L]){
+      diag(transfo) <- rev(diag(transfo))
+      M <- Mobius$new(transfo)
+      draw_pair(M, u)
+      M <- M$inverse()
+      draw_pair(M, u)
+    }
+  }
+}
+
+## ---- eval=FALSE--------------------------------------------------------------
+#  library(gifski)
+#  u_ <- seq(0, 3, length.out = 181)[-1]
+#  save_gif(
+#    for(u in u_){
+#      fplot(u)
+#    },
+#    width = 512,
+#    height = 512,
+#    delay = 0.1
+#  )
+
+## ----gasket-------------------------------------------------------------------
+# function to construct the "children" ####
+ApollonianChildren <- function(inversions, circles1){
+  m <- length(inversions)
+  n <- length(circles1)
+  circles2 <- list()
+  for(i in 1:n){
+    circ <- circles1[[i]]
+    k <- attr(circ, "inversion")
+    for(j in 1:m){
+      if(j != k){
+        circle <- inversions[[j]]$invertCircle(circ)
+        attr(circle, "inversion") <- j
+        circles2 <- append(circles2, circle)
+      }
+    }
+  }
+  circles2
+}
+
+ApollonianGasket <- function(c0, n, phi, shift, depth){
+  circles0 <- SteinerChain(c0, n, phi, shift)
+  # construct the inversions ####
+  inversions <- vector("list", n + 1)
+  for(i in 1:n){
+    inversions[[i]] <- inversionFixingThreeCircles(
+      c0, circles0[[i]], circles0[[(i %% n) + 1]]
+    )
+  }
+  inversions[[n+1]] <- inversionSwappingTwoCircles(c0, circles0[[n+1]])
+  # first generation of children
+  circles1 <- list()
+  for(i in 1:n){
+    ip1 <- (i %% n) + 1
+    for(j in 1:(n+1)){
+      if(j != i && j != ip1){
+        circle <- inversions[[i]]$invertCircle(circles0[[j]])
+        attr(circle, "inversion") <- i
+        circles1 <- append(circles1, circle)
+      }
+    }
+  }
+  # construct children ####
+  allCircles <- vector("list", depth)
+  allCircles[[1]] <- circles0
+  allCircles[[2]] <- circles1
+  for(i in 3:depth){
+    allCircles[[i]] <- ApollonianChildren(inversions, allCircles[[i-1]])
+  }
+  allCircles
+}
+
+## ----drawgasket, fig.height=4, fig.width=4------------------------------------
+library(viridisLite) # for the colors
+c0 <- Circle$new(c(0,0), 3) # the exterior circle
+depth <- 5
+colors <- plasma(depth)
+ApollonianCircles <- ApollonianGasket(c0, n = 3, phi = 0.3, shift = 0, depth)
+# plot ####
+center0 <- c0$center
+radius0 <- c0$radius
+xlim <- center0[1] + c(-radius0 - 0.1, radius0 + 0.1)
+ylim <- center0[2] + c(-radius0 - 0.1, radius0 + 0.1)
+opar <- par(mar = c(0, 0, 0, 0))
+plot(NULL, type = "n", xlim = xlim, ylim = ylim,
+     xlab = NA, ylab = NA, axes = FALSE, asp = 1)
+draw(c0, border = "black", lwd = 2)
+for(i in 1:depth){
+  for(circ in ApollonianCircles[[i]]){
+    draw(circ, col = colors[i])
+  }
+}
+par(opar)
+
+## ----animgasket, eval=FALSE---------------------------------------------------
+#  fplot <- function(shift){
+#    gasket <- ApollonianGasket(c0, n = 3, phi = 0.3, shift = shift, depth)
+#    par(mar = c(0, 0, 0, 0))
+#    plot(NULL, type = "n", xlim = xlim, ylim = ylim,
+#         xlab = NA, ylab = NA, axes = FALSE, asp = 1)
+#    draw(c0, border = "black", lwd = 2)
+#    for(i in 1:depth){
+#      for(circ in gasket[[i]]){
+#        draw(circ, col = colors[i])
+#      }
+#    }
+#  }
+#  
+#  fanim <- function(){
+#    shifts <- seq(0, 3, length.out = 101)[-101]
+#    for(shift in shifts){
+#      fplot(shift)
+#    }
+#  }
+#  
+#  library(gifski)
+#  save_gif(
+#    fanim(),
+#    "ApollonianGasket.gif",
+#    width = 512, height = 512,
+#    delay = 0.1
+#  )
+
+## -----------------------------------------------------------------------------
+Mt <- function(gamma, t){
+  h <- sqrt(1 - Mod(gamma)^2)
+  d2 <- h^t * (cos(t*pi/2) + 1i*sin(t*pi/2))
+  d1 <- Conj(d2)
+  A11 <- Re(d1) - 1i*Im(d1)/h
+  A12 <- Im(d2) * gamma / h
+  rbind(
+    c(A11, A12), 
+    c(Conj(A11), Conj(A12))
+  )
+}
+
+## ----ApollonianMobius---------------------------------------------------------
+c0 <- Circle$new(c(0,0), 1) # the exterior circle
+depth <- 5
+ApollonianCircles <- ApollonianGasket(c0, n = 3, phi = 0.1, shift = 0.5, depth)
+xlim <- c(-1.1, 1.1)
+ylim <- c(-1.1, 1.1)
+opar <- par(mar = c(0, 0, 0, 0))
+fplot <- function(gamma, t){
+  plot(NULL, type = "n", xlim = xlim, ylim = ylim,
+       xlab = NA, ylab = NA, axes = FALSE, asp = 1)
+  draw(c0, border = "black", lwd = 2)
+  Mob <- Mt(gamma, t)
+  for(i in 1:depth){
+    for(circ in ApollonianCircles[[i]]){
+      draw(Mob$transformCircle(circ), col = colors[i])
+    }
+  }
+}
+fanim <- function(){
+  gamma <- 0.5 + 0.4i
+  t_ <- seq(0, 2, length.out = 91)[-91]
+  for(t in t_){
+    fplot(gamma, t)
+  }
+}
+
+## ---- eval=FALSE--------------------------------------------------------------
+#  library(gifski)
+#  save_gif(
+#    fanim(),
+#    "ApollonianMobius.gif",
+#    width = 512, height = 512,
+#    delay = 0.1
+#  )
+#  par(opar)
+
+## ----apollony, eval=FALSE-----------------------------------------------------
+#  apollony <- function(c1, c2, c3, n){
+#    soddycircle <- soddyCircle(c1, c2, c3)
+#    if(n == 1){
+#      soddycircle
+#    }else{
+#      c(
+#        apollony(c1, c2, soddycircle, n-1),
+#        apollony(c1, soddycircle, c3, n-1),
+#        apollony(soddycircle, c2, c3, n-1)
+#      )
+#    }
+#  }
+#  
+#  fractal <- function(n){
+#    c1 = Circle$new(c(1, -1/sqrt(3)), 1)
+#    c2 = Circle$new(c(-1, -1/sqrt(3)), 1)
+#    c3 = Circle$new(c(0, sqrt(3) - 1/sqrt(3)), 1)
+#    do.call(c, lapply(1:n, function(i) apollony(c1, c2, c3, i)))
+#  }
+#  
+#  circs <- fractal(4)
+
+## ----rglsphere----------------------------------------------------------------
+library(rgl)
+# the spheres in rgl, obtained with the `spheres3d` function, are not smooth;
+# the way we use below provides pretty spheres 
+unitSphere <- subdivision3d(icosahedron3d(), depth = 4)
+unitSphere$vb[4, ] <-
+  apply(unitSphere$vb[1:3, ], 2, function(x) sqrt(sum(x * x)))
+unitSphere$normals <- unitSphere$vb
+drawSphere <- function(circle, ...){
+  center <- circle$center
+  radius <- circle$radius
+  sphere <- scale3d(unitSphere, radius, radius, radius)
+  shade3d(translate3d(sphere, center[1], center[2], 0), ...)
+}
+
+## ----rglapollony, eval=FALSE--------------------------------------------------
+#  # plot ####
+#  open3d(windowRect = c(50, 50, 562, 562))
+#  bg3d(color = "#363940")
+#  view3d(35, 60, zoom = 0.95)
+#  for(circ in circs){
+#    drawSphere(circ, color = "darkred")
+#  }
+#  # animation ####
+#  movie3d(
+#    spin3d(axis = c(0, 0, 1), rpm = 15),
+#    duration = 4, fps = 15,
+#    movie = "Apollony", dir = ".",
+#    convert = "magick convert -dispose previous -loop 0 -delay 1x%d %s*.png %s.%s",
+#    startTime = 1/60
+#  )
+
+## ----malfattigasket-----------------------------------------------------------
+toCplx <- function(M){
+  M[1] + 1i * M[2]
+}
+fromCplx <- function(z){
+  c(Re(z), Im(z))
+}
+
+distance <- function(A, B){
+  sqrt(c(crossprod(B - A)))
+}
+
+innerSoddyRadius <- function(r1, r2, r3){
+  1 / (1/r1 + 1/r2 + 1/r3 + 2 * sqrt(1/r1/r2 + 1/r2/r3 + 1/r3/r1))
+}
+
+innerSoddyCircle <- function(c1, c2, c3, ...){
+  radius <- innerSoddyRadius(c1$radius, c3$radius, c3$radius)
+  center <- Triangle$new(c1$center, c2$center, c3$center)$equalDetourPoint()
+  c123 <- Circle$new(center, radius)
+  drawSphere(c123, ...)
+  list(
+    list(type = "ccc", c1 = c123, c2 = c1, c3 = c2),
+    list(type = "ccc", c1 = c123, c2 = c2, c3 = c3),
+    list(type = "ccc", c1 = c123, c2 = c1, c3 = c3)
+  )
+}
+
+side.circle.circle <- function(A, B, cA, cB, ...){
+  if(A[2] > B[2]){
+    return(side.circle.circle(B, A, cB, cA, ...))
+  }
+  rA <- cA$radius
+  rB <- cB$radius
+  zoA <- toCplx(cA$center)
+  zoB <- toCplx(cB$center)
+  zB <- toCplx(A)
+  alpha <- acos((B[1] - A[1]) / distance(A, B))
+  zX1 <- exp(-1i * alpha) * (zoA - zB)
+  zX2 <- exp(-1i * alpha) * (zoB - zB)
+  soddyR <- innerSoddyRadius(rA, rB, Inf)
+  if(Re(zX1) < Re(zX2)){
+    Y <- (2 * rA * sqrt(rB) / (sqrt(rA) + sqrt(rB)) + Re(zX1)) +
+      sign(Im(zX1)) * 1i * soddyR
+  }else{
+    Y <- (2 * rB * sqrt(rA) / (sqrt(rA) + sqrt(rB)) + Re(zX2)) +
+      sign(Im(zX1)) * 1i * soddyR
+  }
+  M <- fromCplx(Y * exp(1i * alpha) + zB)
+  cAB <- Circle$new(M, soddyR)
+  drawSphere(cAB, ...)
+  list(
+    list(type = "ccc", c1 = cAB, c2 = cA, c3 = cB),
+    list(type = "ccl", cA = cA, cB = cAB, A = A, B = B),
+    list(type = "ccl", cA = cAB, cB = cB, A = A, B = B)
+  )
+}
+
+side.side.circle <- function(A, B, C, circle, ...){
+  zA <- toCplx(A)
+  zO <- toCplx(circle$center)
+  vec <- zA - zO
+  P <- fromCplx(zO + circle$radius * vec / Mod(vec))
+  OP <- P - circle$center
+  onTangent <- P + c(-OP[2], OP[1])
+  L1 <- Line$new(P, onTangent)
+  P1 <- intersectionLineLine(L1, Line$new(A, C))
+  P2 <- intersectionLineLine(L1, Line$new(A, B))
+  incircle <- Triangle$new(A, P1, P2)$incircle()
+  drawSphere(incircle, ...)
+  list(
+    list(type = "cll", A = A, B = B, C = C, circle = incircle),
+    list(type = "ccl", cA = circle, cB = incircle, A = A, B = B),
+    list(type = "ccl", cA = circle, cB = incircle, A = A, B = C)
+  )
+}
+
+Newholes <- function(holes, color){
+  newholes <- list()
+  for(i in 1:3){
+    hole <- holes[[i]]
+    holeType <- hole[["type"]]
+    if(holeType == "ccc"){
+      x <- with(hole, innerSoddyCircle(c1, c2, c3, color = color))
+    }else if(holeType == "ccl"){
+      x <- with(hole, side.circle.circle(A, B, cA, cB, color = color))
+    } else if (holeType == "cll"){
+      x <- with(hole, side.side.circle(A, B, C, circle, color = color))
+    }
+    newholes <- c(newholes, list(x))
+  }
+  newholes
+}
+
+MalfattiCircles <- function(A, B, C){
+  Triangle$new(A, B, C)$MalfattiCircles()
+}
+
+drawTriangularGasket <- function(mcircles, A, B, C, colors, depth){
+  C1 <- mcircles[[1]]
+  C2 <- mcircles[[2]]
+  C3 <- mcircles[[3]]
+  triangles3d(cbind(rbind(A, B, C), 0), col = "yellow", alpha = 0.2)
+  holes <- list(
+    side.circle.circle(A, B, C1, C2, color = colors[1]),
+    side.circle.circle(B, C, C2, C3, color = colors[1]),
+    side.circle.circle(C, A, C3, C1, color = colors[1]),
+    innerSoddyCircle(C1, C2, C3, color = colors[1]),
+    side.side.circle(A, B, C, C1, color = colors[1]),
+    side.side.circle(B, A, C, C2, color = colors[1]),
+    side.side.circle(C, A, B, C3, color = colors[1])
+  )
+  for(d in 1:depth){
+    n_holes <- length(holes)
+    Holes <- list()
+    for(i in 1:n_holes){
+      Holes <- append(Holes, Newholes(holes[[i]], colors[d + 1]))
+    }
+    holes <- do.call(list, Holes)
+  }
+}
+
+drawCircularGasket <- function(c0, n, phi, shift, depth, colors){
+  ApollonianCircles <- ApollonianGasket(c0, n, phi, shift, depth)
+  for(i in 1:depth){
+    for(circ in ApollonianCircles[[i]]){
+      drawSphere(circ, color = colors[i])
+    }
+  }
+}
+
+library(viridisLite)
+A <- c(-5, -4)
+B <- c(5, -2)
+C <- c(0, 6)
+mcircles <- MalfattiCircles(A, B, C)
+depth <- 3
+colors <- viridis(depth + 1)
+n1 <- 3
+n2 <- 4
+n3 <- 5
+depth2 <- 3
+phi1 <- 0.2
+phi2 <- 0.3
+phi3 <- 0.4
+shift <- 0
+colors2 <- plasma(depth2)
+
+## ----rgl, eval=FALSE----------------------------------------------------------
+#  library(rgl)
+#  open3d(windowRect = c(50, 50, 562, 562), zoom = 0.9)
+#  bg3d(rgb(54, 57, 64, maxColorValue = 255))
+#  drawTriangularGasket(mcircles, A, B, C, colors, depth)
+#  drawCircularGasket(mcircles[[1]], n1, phi1, shift, depth2, colors2)
+#  drawCircularGasket(mcircles[[2]], n2, phi2, shift, depth2, colors2)
+#  drawCircularGasket(mcircles[[3]], n3, phi3, shift, depth2, colors2)
 

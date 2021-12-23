@@ -2,6 +2,10 @@
   is.numeric(x) && all(is.finite(x)) && !any(is.na(x)) && all(trunc(x) == x)
 }
 
+.isPoint <- function(M){
+  is.numeric(M) && length(M) == 2L && !any(is.na(M)) && all(is.finite(M))
+}
+
 .toCplx <- function(M){
   if(isTRUE(all.equal(M, Inf, check.attributes = FALSE))){
     Inf
@@ -28,6 +32,10 @@
 
 .vlength <- function(v){
   sqrt(c(crossprod(v)))
+}
+
+.isAlmostZero <- function(x){
+  isTRUE(all.equal(x + 1, 1, tol = 1e-6))
 }
 
 .LineLineIntersection <- function (P1, P2, Q1, Q2) {

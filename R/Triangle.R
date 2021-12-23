@@ -256,7 +256,8 @@ Triangle <- R6Class(
       )
     },
 
-    #' @description The X(175) triangle center.
+    #' @description Isoperimetric point, also known as the X(175) triangle
+    #'   center; this is the center of the outer Soddy circle.
     X175 = function() {
       private[[".A"]] -> A; private[[".B"]] -> B; private[[".C"]] -> C
       a <- .distance(B,C)
@@ -912,7 +913,7 @@ Triangle <- R6Class(
     },
 
     #' @description Equal detour point of the triangle.
-    #' @param detour logical, whether to return the detour as an attribute.
+    #' @param detour logical, whether to return the detour as an attribute
     #' @details Also known as the X(176) triangle center.
     equalDetourPoint = function(detour=FALSE) {
       private[[".A"]] -> A; private[[".B"]] -> B; private[[".C"]] -> C
@@ -970,6 +971,20 @@ Triangle <- R6Class(
       c(x = k1/a, y = k2/b, z = k3/c)
     },
 
+
+    #' @description Isogonal conjugate of a point with respect to
+    #' the reference triangle.
+    #' @param P a point
+    #' @return A point, the isogonal conjugate of \code{P}.
+    isogonalConjugate = function(P){
+      coords <- self$pointToTrilinear(P)
+      x <- coords[1L]
+      y <- coords[2L]
+      z <- coords[3L]
+      self$trilinearToPoint(y*z, x*z, x*y)
+    },
+
+
     #' @description Rotate the triangle.
     #' @param alpha angle of rotation
     #' @param O center of rotation
@@ -1021,6 +1036,11 @@ Triangle <- R6Class(
     #' triangle. This is the ellipse passing through the three vertices of
     #' the triangle and centered at the centroid of the triangle.
     #' @return An \code{Ellipse} object.
+    #' @note The Steiner ellipse is also the smallest area ellipse which passes
+    #'   through the vertices of the triangle, and thus can be obtained with
+    #'   the function \code{\link{EllipseFromThreeBoundaryPoints}}. We can also
+    #'   note that the major axis of the Steiner ellipse is the Deming
+    #'   least squares line of the three triangle vertices.
     #' @examples t <- Triangle$new(c(0,0), c(2,0.5), c(1.5,2))
     #' ell <- t$SteinerEllipse()
     #' plot(NULL, asp = 1, xlim = c(0,2.5), ylim = c(-0.7,2.4),
@@ -1061,6 +1081,29 @@ Triangle <- R6Class(
       f$transformEllipse(circ)
     },
 
+    #' @description The Mandart inellipse of the reference triangle. This is
+    #'   the unique ellipse tangent to the triangle's sides at the contact
+    #'   points of its excircles
+    #' @return An \code{Ellipse} object.
+    MandartInellipse = function(){
+      if(self$flatness() == 1){
+        warning("The triangle is flat.")
+        return(NULL)
+      }
+      private[[".A"]] -> A; private[[".B"]] -> B; private[[".C"]] -> C
+      # tangency points of the excircles:
+      a <- .distance(B,C)
+      b <- .distance(A,C)
+      c <- .distance(B,A)
+      tc <- c(0, c+a-b, a+b-c)
+      XA <- (b*tc[2L]*B + c*tc[3L]*C) / (b*tc[2L] + c*tc[3L])
+      tc <- c(c+b-a, 0, a+b-c)
+      XB <- (a*tc[1L]*A + c*tc[3L]*C) / (a*tc[1L] + c*tc[3L])
+      tc <- c(c+b-a, a+c-b, 0)
+      XC <- (a*tc[1L]*A + b*tc[2L]*B) / (a*tc[1L] + b*tc[2L])
+      EllipseFromThreeBoundaryPoints(XA, XB, XC)
+    },
+
     #' @description Random points on or in the reference triangle.
     #' @param n an integer, the desired number of points
     #' @param where \code{"in"} to generate inside the triangle,
@@ -1075,6 +1118,31 @@ Triangle <- R6Class(
         runif_on_triangle(n, private[[".A"]], private[[".B"]],
                                      private[[".C"]])
       }
+    },
+
+    #' @description Hexyl triangle.
+    hexylTriangle = function(){
+      private[[".A"]] -> A; private[[".B"]] -> B; private[[".C"]] -> C
+      cosangles <- cos(self$angles())
+      cosA <- cosangles[1L]
+      cosB <- cosangles[2L]
+      cosC <- cosangles[3L]
+      a <- .distance(B,C)
+      b <- .distance(A,C)
+      c <- .distance(B,A)
+      x <- cosA + cosB + cosC + 1
+      y <- cosA + cosB - cosC - 1
+      z <- cosA - cosB + cosC - 1
+      HA <- (a*x*A + b*y*B + c*z*C) / (a*x + b*y + c*z)
+      x <- cosA + cosB - cosC - 1
+      y <- cosA + cosB + cosC + 1
+      z <- -cosA + cosB + cosC - 1
+      HB <- (a*x*A + b*y*B + c*z*C) / (a*x + b*y + c*z)
+      x <- cosA - cosB + cosC - 1
+      y <- -cosA + cosB + cosC - 1
+      z <- cosA + cosB + cosC + 1
+      HC <- (a*x*A + b*y*B + c*z*C) / (a*x + b*y + c*z)
+      Triangle$new(HA, HB, HC)
     }
 
   )
