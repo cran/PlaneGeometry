@@ -1,11 +1,11 @@
-9e17afdcc0cd202371257ed2f0f24dc2 *DESCRIPTION
-3877dd8d9f3905f3e7e5efb8eb1eeb19 *NAMESPACE
-f2ed93070b3cc8ec053a3875ce9fdd78 *NEWS.md
+146978bce9d87394e7a5092b95befc62 *DESCRIPTION
+06130ee8cc4ff8af781f4de7841c4e22 *NAMESPACE
+484a6dfe4bb4bd6db2e380b2c36f5ded *NEWS.md
 7c880bcc611988b41147120dae01cd2d *R/Affine.R
 bdc598e6f415cf1023fd048ec70e45c0 *R/Arc.R
 3cc42f15bb8f010d09970d01a811b0c1 *R/AxisScaling.R
 eb6f8b31ea2b154ad2605da63ce871df *R/Circle.R
-9a2e2cc519bcf89c84b47f4d9cac7cc7 *R/Ellipse.R
+1238cee1d76ac3ff455f9d747840e3e4 *R/Ellipse.R
 822fd7045a71399b247062e78902c470 *R/EllipticIntegral.R
 67d27746b816d519971d8e5e9e2449b6 *R/EllipticalArc.R
 6254d0c51b9fd396e2d1557be8de3966 *R/Homothety.R
@@ -25,8 +25,8 @@ fdd78c50384ace7f52b5608a7f4cd71c *R/imports.R
 e962f7736780ec65e64095427f8a36a8 *R/internal.R
 b48f653823b74bb4d12bbacffc0ac154 *build/vignette.rds
 09c942c855a8ee76b08da68d73d7737b *inst/doc/examples.R
-04c95049e31b30aafc5ca40926aec320 *inst/doc/examples.Rmd
-0c1de4eadbcb3a9de1bf5e4f40c617f3 *inst/doc/examples.html
+b2b2cce48baffb110273020768752093 *inst/doc/examples.Rmd
+0359ae978046adf0272a1e1a8de946bf *inst/doc/examples.html
 a62c90ac151e635b7d2eb2f00554a682 *man/Affine.Rd
 b0ddcbce810221f8b26b95d3c116dde5 *man/AffineMappingEllipse2Ellipse.Rd
 00c7b0aaf0d827a5e8ef20cfe82b744e *man/AffineMappingThreePoints.Rd
@@ -64,6 +64,7 @@ c801ab0d45bfecb52f9b1b841ffb3419 *man/TriangleThreeLines.Rd
 b095f69a3dd86450bb7a8e059e313202 *man/crossRatio.Rd
 5c861f7c3d28ea9f79bd7ac870be9a2a *man/draw.Rd
 d4e3f777a15e8e2cd59c0447bbd088fd *man/ellint2.Rd
+7a6044ae3d37afd5d74d124487779114 *man/fitEllipse.Rd
 f6944219414ce8606daba071d33e0b23 *man/intersectionCircleCircle.Rd
 aa7e18b06ed2507bed5e9aabe939c164 *man/intersectionCircleLine.Rd
 dd21ab66a9ba12bdb02e44910af663f0 *man/intersectionEllipseLine.Rd
@@ -89,4 +90,4 @@ cc15e0e984b0f2e485d0f6a428df50a5 *tests/testthat/test-ellipticalArc.R
 bbca4c61bedee56aedeebd9c9cae3d77 *tests/testthat/test-scaling.R
 3cc35f5788ccf0740745af0895fa9498 *tests/testthat/test-shear.R
 d4e569e4e767e57894a1176b7619e68d *tests/testthat/test-triangle.R
-04c95049e31b30aafc5ca40926aec320 *vignettes/examples.Rmd
+b2b2cce48baffb110273020768752093 *vignettes/examples.Rmd
