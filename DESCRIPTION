@@ -1,7 +1,7 @@
 Type: Package
 Package: PlaneGeometry
 Title: Plane Geometry
-Version: 1.4.0
+Version: 1.5.0
 Author: Stéphane Laurent
 Maintainer: Stéphane Laurent <laurent_step@outlook.fr>
 Description: An extensive set of plane geometry routines. Provides R6
@@ -21,6 +21,6 @@ VignetteBuilder: knitr
 Encoding: UTF-8
 RoxygenNote: 7.2.3
 NeedsCompilation: no
-Packaged: 2023-05-19 15:10:11 UTC; stla
+Packaged: 2023-06-17 13:37:11 UTC; SDL96354
 Repository: CRAN
-Date/Publication: 2023-05-19 15:30:02 UTC
+Date/Publication: 2023-06-17 16:30:02 UTC
