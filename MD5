@@ -1,6 +1,6 @@
-83a555b7d5b890c95a1dc9a8e6c2c5c9 *DESCRIPTION
+12ba0038424012d87e625fad52a3e658 *DESCRIPTION
 670e4eb45ec9d73f5bd99aa731de614c *NAMESPACE
-c55b7ba271b1f4bc86c9554d2fb6d17f *NEWS.md
+3bb1c93f802485e8df94950d80c63b15 *NEWS.md
 318ab6239df2f7b99f48e202a33a6682 *R/Affine.R
 cd37aa06925a1cb0b8d4805c58b93151 *R/Arc.R
 f6229305aee9b4cc0a2dcdc793984289 *R/AxisScaling.R
@@ -22,10 +22,10 @@ aef1b89ac8042b6144eacd8b2a208daf *R/Projection.R
 eaeef6f78bc44610bc017b550420907a *R/draw.R
 3360db139709fd8d6c4261fc0c37cc83 *R/imports.R
 4718053d6c200034d7cb5c3964541229 *R/internal.R
-dd98cd8a764c13241854dbd3d33e6f14 *build/vignette.rds
-291ec77dbabad3c3641fa6bb2029bee4 *inst/doc/examples.R
-8f9a7b470f3f79bc935ba55ad5684dc1 *inst/doc/examples.Rmd
-6e00aea6263465f7abff508e900bd3d4 *inst/doc/examples.html
+ffba2800ab18f60f08d55f79dc820a5f *build/vignette.rds
+508329955ed83c5e952eabfdc5a62dbb *inst/doc/examples.R
+f9078ec3f3e1c2f62cad427fe9625081 *inst/doc/examples.Rmd
+1c687d19d5b351e56f0e8b6c656e4116 *inst/doc/examples.html
 47750126f8ebdb5cbc8930153a485a03 *man/Affine.Rd
 797d40b1042cffdfa3a2a59916b53b56 *man/AffineMappingEllipse2Ellipse.Rd
 67965b55e414da2aa2c3e5fe07a61fa8 *man/AffineMappingThreePoints.Rd
@@ -80,9 +80,9 @@ a8ef872c480797e3adb18cf0cb75edf3 *man/radicalCenter.Rd
 4768279ffc308dc6621eb39bd533aa2e *man/unitCircle.Rd
 b15af9c1a4f77d343e0d3be83567ae18 *tests/testthat.R
 f4ab9580572094ad9feab43bda13f2f4 *tests/testthat/test-affine.R
-63a8a9cfcb8f15f5c3bfa88289547e57 *tests/testthat/test-ellipse.R
+164dc97568c9b9a71f29ddb45889680e *tests/testthat/test-ellipse.R
 8fccdeaff617f98672aa77060db43092 *tests/testthat/test-ellipticalArc.R
-1782b613fc1d29fcff90d94146687ccf *tests/testthat/test-intersections.R
+06f257d644767374f7dd1531e4c04afa *tests/testthat/test-intersections.R
 d438347fe671c9a8d911a0b17a6268e9 *tests/testthat/test-inversions.R
 77583860be2bf6fab04f96dd536daf04 *tests/testthat/test-midcircles.R
 254616fd0031a686753c631c9f88a68c *tests/testthat/test-mobius.R
@@ -90,4 +90,4 @@ d438347fe671c9a8d911a0b17a6268e9 *tests/testthat/test-inversions.R
 24ad7129e82cfeb5ea0c2b908089b4bd *tests/testthat/test-scaling.R
 d8803f5b6d781975036f9c09142688d9 *tests/testthat/test-shear.R
 d4e569e4e767e57894a1176b7619e68d *tests/testthat/test-triangle.R
-8f9a7b470f3f79bc935ba55ad5684dc1 *vignettes/examples.Rmd
+f9078ec3f3e1c2f62cad427fe9625081 *vignettes/examples.Rmd

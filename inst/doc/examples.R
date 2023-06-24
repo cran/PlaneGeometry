@@ -221,11 +221,11 @@ tessellation <- function(depth, Thetas0, colors){
   invisible()
 }
 
-## ----tessellation, fig.width=4, fig.height=4----------------------------------
+## ----tessellation, fig.width=4, fig.height=4, eval=require("viridisLite", quietly=TRUE)----
 tessellation(
   depth = 5L, 
   Thetas0 = c(0, 2, 3.8), 
-  colors = viridisLite::viridis(5)
+  colors = viridisLite::viridis(5L)
 )
 
 ## -----------------------------------------------------------------------------
@@ -316,7 +316,7 @@ tessellation2 <- function(depth, Thetas0, colors){
       A <- arc$endingPoint()
       alpha1 <- Arg(A[1L] + 1i*A[2L])
       alpha2 <- Arg(B[1L] + 1i*B[2L])
-      path2 <- Arc$new(c(0,0), 3, alpha1, alpha2, FALSE)$path()
+      path2 <- Arc$new(c(0, 0), 3, alpha1, alpha2, FALSE)$path()
       polypath(rbind(path1,path2), col = colors[d+1L])
     }
   }
@@ -328,11 +328,11 @@ tessellation2 <- function(depth, Thetas0, colors){
   invisible()
 }
 
-## ----tessellation2, fig.width=4, fig.height=4---------------------------------
+## ----tessellation2, fig.width=4, fig.height=4, eval=require("viridisLite", quietly=TRUE)----
 tessellation2(
   depth = 5L, 
   Thetas0 = c(0, 2, 3.8), 
-  colors = viridisLite::viridis(6)
+  colors = viridisLite::viridis(6L)
 )
 
 ## -----------------------------------------------------------------------------
@@ -604,7 +604,7 @@ plot(0, 0, type = "n", xlim = c(-2.3, 2.3), ylim = c(-2.3, 2.3),
 invisible(lapply(gcircles, drawGcircle, lwd = 2))
 par(opar)
 
-## ----schottky, message=FALSE--------------------------------------------------
+## ----schottky, message=FALSE, eval=require("freegroup", quietly=TRUE)---------
 library(freegroup)
 
 a <- alpha(1)
@@ -676,7 +676,7 @@ word2circle <- function(g){
   mobius$transformGcircle(GCIRCLES[[seq[n]]])
 }
 
-## ----draw_schottky, fig.width=4, fig.height=4---------------------------------
+## ----draw_schottky, fig.width=4, fig.height=4, eval=require("freegroup", quietly=TRUE)----
 opar <- par(mar = c(0,0,0,0), bg = "black")
 plot(NULL, asp = 1, xlim = c(-3,3), ylim = c(-3,3),
      axes = FALSE, xlab = NA, ylab = NA)
@@ -711,7 +711,7 @@ for(g in Gn){
 }
 par(opar)
 
-## ----modularTesselation, message=FALSE----------------------------------------
+## ----modularTesselation, message=FALSE, eval=require("elliptic", quietly=TRUE)----
 library(elliptic) # for the unimodular matrices
 
 # Möbius transformations
@@ -836,7 +836,7 @@ ApollonianGasket <- function(c0, n, phi, shift, depth){
   allCircles
 }
 
-## ----drawgasket, fig.height=4, fig.width=4------------------------------------
+## ----drawgasket, fig.height=4, fig.width=4, eval=require("viridisLite", quietly=TRUE)----
 library(viridisLite) # for the colors
 c0 <- Circle$new(c(0,0), 3) # the exterior circle
 depth <- 5
@@ -959,7 +959,7 @@ fanim <- function(){
 #  
 #  circs <- fractal(4)
 
-## ----rglsphere----------------------------------------------------------------
+## ----rglsphere, eval=require("rgl", quietly=TRUE)-----------------------------
 library(rgl)
 # the spheres in rgl, obtained with the `spheres3d` function, are not smooth;
 # the way we use below provides pretty spheres 
@@ -991,7 +991,7 @@ drawSphere <- function(circle, ...) {
 #    startTime = 1/60
 #  )
 
-## ----malfattigasket-----------------------------------------------------------
+## ----malfattigasket, eval=require("viridisLite", quietly=TRUE)----------------
 toCplx <- function(M) {
   M[1L] + 1i * M[2L]
 }
@@ -1148,7 +1148,7 @@ colors2 <- plasma(depth2)
 #  drawCircularGasket(mcircles[[2L]], n2, phi2, shift, depth2, colors2)
 #  drawCircularGasket(mcircles[[3L]], n3, phi3, shift, depth2, colors2)
 
-## ----malfattiCircular, warning=FALSE------------------------------------------
+## ----malfattiCircular, warning=FALSE, eval=require("rgl", quietly=TRUE)-------
 library(rgl)
 
 iteration <- function(circlesWithIndicator, inversions) {
