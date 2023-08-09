@@ -135,7 +135,7 @@ Show instance of a line object.
 \if{latex}{\out{\hypertarget{method-Line-length}{}}}
 \subsection{Method \code{length()}}{
 Segment length, returns the length of the segment joining
-  the two point defining the line.
+  the two points defining the line.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Line$length()}\if{html}{\out{</div>}}
 }
@@ -146,16 +146,16 @@ Segment length, returns the length of the segment joining
 \if{latex}{\out{\hypertarget{method-Line-directionAndOffset}{}}}
 \subsection{Method \code{directionAndOffset()}}{
 Direction (angle between 0 and 2pi)
-and offset (positive number) of the reference line.
+  and offset (positive number) of the reference line.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Line$directionAndOffset()}\if{html}{\out{</div>}}
 }
 
 \subsection{Details}{
 The equation of the line is
-\ifelse{html}{\out{cos(&theta;)x+sin(&theta;)y=d}}{\eqn{\cos(\theta)x+\sin(\theta)y=d}{cos(theta)x+sin(theta)y=d}}
-where \ifelse{html}{\out{&theta;}}{\eqn{\theta}{theta}} is the direction
-and \ifelse{html}{\out{d}}{\eqn{d}{d}} is the offset.
+  \ifelse{html}{\out{cos(&theta;)x+sin(&theta;)y=d}}{\eqn{\cos(\theta)x+\sin(\theta)y=d}{cos(theta)x+sin(theta)y=d}}
+  where \ifelse{html}{\out{&theta;}}{\eqn{\theta}{theta}} is the direction
+  and \ifelse{html}{\out{d}}{\eqn{d}{d}} is the offset.
 }
 
 }
@@ -232,13 +232,16 @@ Whether a point belongs to the reference line.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{M}}{the point for which we want to test whether it belongs to the line}
+\item{\code{M}}{the point for which we want to test whether it belongs to the
+line}
 
-\item{\code{strict}}{logical, whether to take into account \code{extendA} and \code{extendB}}
+\item{\code{strict}}{logical, whether to take into account \code{extendA}
+and \code{extendB}}
 
 \item{\code{checkCollinear}}{logical, whether to check the collinearity of
-\code{A}, \code{B}, \code{M}; set to \code{FALSE} only if you are sure that
-\code{M} is on the line \code{(AB)} (if you use \code{strict=TRUE})}
+\code{A}, \code{B}, \code{M}; set to \code{FALSE} only if you are sure
+that \code{M} is on the line \code{(AB)} in case if you use
+\code{strict=TRUE}}
 }
 \if{html}{\out{</div>}}
 }

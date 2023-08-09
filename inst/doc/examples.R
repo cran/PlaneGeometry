@@ -1251,3 +1251,37 @@ CircularMalfattiGasket <- function(C, depth, colors) {
 #    colors = c("yellow", "orangered", "darkmagenta")
 #  )
 
+## ----hyperbola, fig.width=7, fig.height=5-------------------------------------
+# take a hyperbola
+L1 <- LineFromInterceptAndSlope(0, 2)      # asymptote 1
+L2 <- LineFromInterceptAndSlope(-2, -0.15) # asymptote 2
+M <- c(2, 3) # a point on the hyperbola
+hyperbola <- Hyperbola$new(L1, L2, M)
+# take a point on the hyperbola and the tangent at this point
+OAB <- hyperbola$OAB()
+O <- OAB$O; A <- OAB$A; B <- OAB$B
+t <- 0.1
+P <- O + cosh(t)*A + sinh(t)*B
+tgt <- Line$new(P, P + sinh(t)*A + cosh(t)*B)
+# the triangle of interest
+C <- intersectionLineLine(L1, tgt)
+D <- intersectionLineLine(L2, tgt)
+trgl <- Triangle$new(O, C, D)
+# plot
+opar <- par(mar = c(4, 4, 1, 1))
+hyperbola$plot(lwd = 2)
+draw(L1, col = "red")
+draw(L2, col = "red")
+text(t(O), "O", pos = 3)
+points(t(P), pch = 19, col = "blue")
+text(t(P), "P", pos = 4)
+draw(tgt, col = "blue", lwd = 2)
+text(t(C), "C", pos = 2)
+text(t(D), "D", pos = 4)
+trgl$plot(add = TRUE, col = "yellow")
+par(opar)
+# theorem checking: area of the triangle does not depend on
+# the choice of P; more precisely, it is equal to ab
+trgl$area()
+with(hyperbola$abce(), a * b)
+
